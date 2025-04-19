@@ -1,6 +1,6 @@
 # m3builderai
 
-A new Flutter project.
+Material 3 Theme Builder AI - Application Flutter pour créer et éditer des thèmes Material 3
 
 ## Getting Started
 
