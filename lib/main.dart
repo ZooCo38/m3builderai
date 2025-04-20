@@ -23,8 +23,8 @@ class MyApp extends StatelessWidget {
         
         return MaterialApp(
           title: 'M3 Builder AI',
-          theme: themeController.customLightTheme,
-          darkTheme: themeController.customDarkTheme,
+          theme: themeController.lightTheme,
+          darkTheme: themeController.darkTheme,
           themeMode: themeController.themeMode,
           home: const HomeView(),
         );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import '../models/theme_model.dart';
 import 'material_theme.dart';
 
@@ -9,7 +10,7 @@ enum ContrastLevel {
 }
 
 class ThemeController extends ChangeNotifier {
-  // Modèles de thème - ne pas les déclarer comme final si vous prévoyez de les réassigner
+  // Modèles de thème existants
   final ThemeModel _currentThemeModel = ThemeModel();
   final ThemeModel _darkThemeModel = ThemeModel();
   
@@ -20,6 +21,12 @@ class ThemeController extends ChangeNotifier {
   late ThemeModel _darkHighContrastModel;
   ThemeMode _themeMode = ThemeMode.light;
   ContrastLevel _contrastLevel = ContrastLevel.normal;
+  
+  // Nouvelles propriétés pour flex_color_scheme
+  FlexScheme _flexScheme = FlexScheme.material;
+  bool _useFlexColorScheme = false;
+  double _blendLevel = 0;
+  bool _useMaterial3 = true;
   
   // Instance de MaterialTheme pour accéder aux thèmes prédéfinis
   final MaterialTheme _materialTheme = const MaterialTheme();
@@ -99,28 +106,92 @@ class ThemeController extends ChangeNotifier {
 
   // Obtenir le thème light en fonction du niveau de contraste
   ThemeData get lightTheme {
-    switch (_contrastLevel) {
-      case ContrastLevel.normal:
-        return _materialTheme.light();
-      case ContrastLevel.medium:
-        return _materialTheme.lightMediumContrast();
-      case ContrastLevel.high:
-        return _materialTheme.lightHighContrast();
+    if (_useFlexColorScheme) {
+      return FlexThemeData.light(
+        scheme: _flexScheme,
+        useMaterial3: _useMaterial3,
+        blendLevel: _blendLevel.toInt(),
+        appBarElevation: 0.5,
+        subThemesData: const FlexSubThemesData(
+          blendOnLevel: 10,
+          blendOnColors: false,
+          useTextTheme: true,
+          useM2StyleDividerInM3: true,
+        ),
+        visualDensity: FlexColorScheme.comfortablePlatformDensity,
+        // Vous pouvez personnaliser davantage ici
+      );
+    } else {
+      // Utiliser votre logique existante
+      switch (_contrastLevel) {
+        case ContrastLevel.normal:
+          return _materialTheme.light();
+        case ContrastLevel.medium:
+          return _materialTheme.lightMediumContrast();
+        case ContrastLevel.high:
+          return _materialTheme.lightHighContrast();
+      }
     }
   }
 
-  // Obtenir le thème dark en fonction du niveau de contraste
+  // Méthode pour obtenir le thème dark avec flex_color_scheme
   ThemeData get darkTheme {
-    switch (_contrastLevel) {
-      case ContrastLevel.normal:
-        return _materialTheme.dark();
-      case ContrastLevel.medium:
-        return _materialTheme.darkMediumContrast();
-      case ContrastLevel.high:
-        return _materialTheme.darkHighContrast();
+    if (_useFlexColorScheme) {
+      return FlexThemeData.dark(
+        scheme: _flexScheme,
+        useMaterial3: _useMaterial3,
+        blendLevel: _blendLevel.toInt(),
+        appBarElevation: 1,
+        subThemesData: const FlexSubThemesData(
+          blendOnLevel: 15,
+          useTextTheme: true,
+          useM2StyleDividerInM3: true,
+        ),
+        visualDensity: FlexColorScheme.comfortablePlatformDensity,
+        // Vous pouvez personnaliser davantage ici
+      );
+    } else {
+      // Utiliser votre logique existante
+      switch (_contrastLevel) {
+        case ContrastLevel.normal:
+          return _materialTheme.dark();
+        case ContrastLevel.medium:
+          return _materialTheme.darkMediumContrast();
+        case ContrastLevel.high:
+          return _materialTheme.darkHighContrast();
+      }
     }
   }
-
+  
+  // Méthodes pour modifier les propriétés de flex_color_scheme
+  void setFlexScheme(FlexScheme scheme) {
+    if (_flexScheme != scheme) {
+      _flexScheme = scheme;
+      notifyListeners();
+    }
+  }
+  
+  void setUseFlexColorScheme(bool use) {
+    if (_useFlexColorScheme != use) {
+      _useFlexColorScheme = use;
+      notifyListeners();
+    }
+  }
+  
+  void setBlendLevel(double level) {
+    if (_blendLevel != level) {
+      _blendLevel = level;
+      notifyListeners();
+    }
+  }
+  
+  void setUseMaterial3(bool use) {
+    if (_useMaterial3 != use) {
+      _useMaterial3 = use;
+      notifyListeners();
+    }
+  }
+  
   // Pour compatibilité avec main.dart
   ColorScheme get lightColorScheme => lightTheme.colorScheme;
   ColorScheme get darkColorScheme => darkTheme.colorScheme;
@@ -378,4 +449,10 @@ class ThemeController extends ChangeNotifier {
   // Getters pour les thèmes personnalisés
   ThemeData get customLightTheme => _createCustomTheme(false);
   ThemeData get customDarkTheme => _createCustomTheme(true);
-}
+  
+  // Getters pour les propriétés de flex_color_scheme
+  FlexScheme get flexScheme => _flexScheme;
+  bool get useFlexColorScheme => _useFlexColorScheme;
+  double get blendLevel => _blendLevel;
+  bool get useMaterial3 => _useMaterial3;
+}  // Accolade fermante manquante pour la classe ThemeController

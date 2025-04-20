@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../components/drawer/theme_editor_drawer.dart';
 import '../components/preview/component_preview.dart';
 import '../theme/theme_controller.dart';
+import '../widgets/flex_theme_settings.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -107,36 +108,136 @@ class _HomeViewState extends State<HomeView> {
                         
                         const SizedBox(height: 16),
                         
-                        // Bouton de contraste
+                        // Bouton de contraste - version verticale
                         Column(
                           children: [
-                            PopupMenuButton<ContrastLevel>(
-                              icon: const Icon(Icons.contrast),
-                              tooltip: 'Contrast level',
-                              onSelected: (ContrastLevel level) {
-                                // Modification ici pour s'assurer que le changement est appliqué
+                            // Bouton Standard (Normal)
+                            IconButton(
+                              icon: Icon(
+                                Icons.brightness_5,
+                                color: themeController.contrastLevel == ContrastLevel.normal
+                                    ? currentTheme.colorScheme.onPrimaryContainer
+                                    : currentTheme.colorScheme.onSurface,
+                              ),
+                              onPressed: () {
                                 setState(() {
-                                  themeController.setContrastLevel(level);
-                                  print("Contrast set to: $level");
+                                  themeController.setContrastLevel(ContrastLevel.normal);
+                                  print("Contrast set to: normal");
                                 });
                               },
-                              itemBuilder: (context) => [
-                                const PopupMenuItem(
-                                  value: ContrastLevel.normal,
-                                  child: Text('Normal contrast'),
-                                ),
-                                const PopupMenuItem(
-                                  value: ContrastLevel.medium,
-                                  child: Text('Medium contrast'),
-                                ),
-                                const PopupMenuItem(
-                                  value: ContrastLevel.high,
-                                  child: Text('High contrast'),
-                                ),
-                              ],
+                              style: IconButton.styleFrom(
+                                backgroundColor: themeController.contrastLevel == ContrastLevel.normal
+                                    ? currentTheme.colorScheme.primaryContainer
+                                    : Colors.transparent,
+                                foregroundColor: themeController.contrastLevel == ContrastLevel.normal
+                                    ? currentTheme.colorScheme.onPrimaryContainer
+                                    : currentTheme.colorScheme.onSurface,
+                              ),
+                              tooltip: 'Standard contrast',
+                            ),
+                            Text(
+                              'Standard',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: themeController.contrastLevel == ContrastLevel.normal
+                                    ? currentTheme.colorScheme.primary
+                                    : currentTheme.colorScheme.onSurface,
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 8),
+                            
+                            // Bouton Medium
+                            IconButton(
+                              icon: Icon(
+                                Icons.brightness_6,
+                                color: themeController.contrastLevel == ContrastLevel.medium
+                                    ? currentTheme.colorScheme.onPrimaryContainer
+                                    : currentTheme.colorScheme.onSurfaceVariant,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  themeController.setContrastLevel(ContrastLevel.medium);
+                                  print("Contrast set to: medium");
+                                });
+                              },
+                              style: IconButton.styleFrom(
+                                backgroundColor: themeController.contrastLevel == ContrastLevel.medium
+                                    ? currentTheme.colorScheme.primaryContainer
+                                    : Colors.transparent,
+                                foregroundColor: themeController.contrastLevel == ContrastLevel.medium
+                                    ? currentTheme.colorScheme.onPrimaryContainer
+                                    : currentTheme.colorScheme.onSurfaceVariant,
+                              ),
+                              tooltip: 'Medium contrast',
+                            ),
+                            Text(
+                              'Medium',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: themeController.contrastLevel == ContrastLevel.medium
+                                    ? currentTheme.colorScheme.primary
+                                    : currentTheme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 8),
+                            
+                            // Bouton High - correction du style
+                            IconButton(
+                              icon: Icon(
+                                Icons.brightness_7,
+                                color: themeController.contrastLevel == ContrastLevel.high
+                                    ? currentTheme.colorScheme.onPrimaryContainer
+                                    : currentTheme.colorScheme.onSurfaceVariant,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  themeController.setContrastLevel(ContrastLevel.high);
+                                  print("Contrast set to: high");
+                                });
+                              },
+                              style: IconButton.styleFrom(
+                                backgroundColor: themeController.contrastLevel == ContrastLevel.high
+                                    ? currentTheme.colorScheme.primaryContainer
+                                    : Colors.transparent,
+                                foregroundColor: themeController.contrastLevel == ContrastLevel.high
+                                    ? currentTheme.colorScheme.onPrimaryContainer
+                                    : currentTheme.colorScheme.onSurfaceVariant,
+                              ),
+                              tooltip: 'High contrast',
+                            ),
+                            Text(
+                              'High',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: themeController.contrastLevel == ContrastLevel.high
+                                    ? currentTheme.colorScheme.primary
+                                    : currentTheme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        // Ajout du bouton pour les paramètres FlexColorScheme
+                        const SizedBox(height: 16),
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.color_lens),
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) => const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: FlexThemeSettings(),
+                                  ),
+                                );
+                              },
+                              tooltip: 'FlexColorScheme settings',
                             ),
                             const Text(
-                              'Contrast',
+                              'Flex',
                               style: TextStyle(fontSize: 12),
                             ),
                           ],
@@ -147,13 +248,20 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             ),
-            
             // Drawer d'édition de thème toujours visible à gauche après le rail
             if (!isDesktop) 
               const SizedBox() 
             else 
-              Builder(
-                builder: (context) => ThemeEditorDrawer(),
+              SizedBox(
+                width: 300, // Définir une largeur fixe
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ThemeEditorDrawer(),
+                    ),
+                    // FlexThemeSettings supprimé d'ici
+                  ],
+                ),
               ),
             
             // Contenu principal
@@ -171,8 +279,15 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
         // Drawer d'édition de thème (accessible via un bouton sur mobile)
-        endDrawer: isDesktop ? null : Builder(
-          builder: (context) => ThemeEditorDrawer(),
+        endDrawer: isDesktop ? null : Drawer(
+          child: Column(
+            children: [
+              Expanded(
+                child: ThemeEditorDrawer(),
+              ),
+              // FlexThemeSettings supprimé d'ici
+            ],
+          ),
         ),
         floatingActionButton: isDesktop 
             ? null 
