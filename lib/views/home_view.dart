@@ -4,6 +4,8 @@ import '../components/drawer/theme_editor_drawer.dart';
 import '../components/preview/component_preview.dart';
 import '../theme/theme_controller.dart';
 import '../widgets/flex_theme_settings.dart';
+import '../views/mobile_preview.dart'; // Ajout de l'import pour MobilePreview
+import '../views/web_preview.dart'; // Ajout de l'import pour WebPreview si disponible
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -271,7 +273,7 @@ class _HomeViewState extends State<HomeView> {
                   // Forcer l'application du background pour toutes les vues
                   return Container(
                     color: currentTheme.colorScheme.background,
-                    child: ComponentPreview(viewType: _viewTitles[_selectedIndex]),
+                    child: _buildSelectedView(_selectedIndex),
                   );
                 },
               ),
@@ -300,5 +302,20 @@ class _HomeViewState extends State<HomeView> {
               ),
       ),
     );
+  }
+
+  // Nouvelle méthode pour construire la vue sélectionnée
+  Widget _buildSelectedView(int index) {
+    switch (index) {
+      case 0:
+        return ComponentPreview(viewType: _viewTitles[index]);
+      case 1:
+        return const MobilePreview();
+      case 2:
+        // Remplacer le placeholder par WebPreview
+        return const WebPreview();
+      default:
+        return ComponentPreview(viewType: _viewTitles[0]);
+    }
   }
 }

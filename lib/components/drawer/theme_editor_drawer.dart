@@ -329,75 +329,128 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
     // Convertir la couleur en code HEX à 6 caractères (sans l'alpha)
     String hexColor = '#${color.value.toRadixString(16).substring(2, 8).toUpperCase()}';
     
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(label),
-      subtitle: InkWell(
-        onTap: () async {
-          // Afficher un dialogue pour éditer le code HEX
-          final String? newHexColor = await _showHexEditDialog(context, hexColor);
-          if (newHexColor != null) {
-            try {
-              // Convertir le code HEX en couleur
-              String hex = newHexColor;
-              if (hex.startsWith('#')) {
-                hex = hex.substring(1);
-              }
-              // Ajouter l'alpha (FF) si nécessaire
-              if (hex.length == 6) {
-                hex = 'FF$hex';
-              }
-              final newColor = Color(int.parse(hex, radix: 16));
-              // Mettre à jour la couleur
-              themeController.updateThemeColor(colorName, newColor);
-              // Forcer la mise à jour de l'interface
-              setState(() {});
-            } catch (e) {
-              // Afficher une erreur si le format est invalide
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Invalid HEX color format'),
-                  behavior: SnackBarBehavior.floating,
+    // Vérifier si cette couleur est utilisée par le composant sélectionné
+    bool isHighlighted = false;
+    String? componentName;
+    if (themeController.selectedComponentInfo != null) {
+      isHighlighted = themeController.selectedComponentInfo!.usedColorProperties.contains(colorName);
+      componentName = themeController.selectedComponentInfo!.componentName;
+    }
+    
+    return Container(
+      decoration: BoxDecoration(
+        border: isHighlighted
+            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+            : null,
+        borderRadius: BorderRadius.circular(8),
+        color: isHighlighted ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2) : null,
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.all(isHighlighted ? 4 : 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isHighlighted && componentName != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 8, top: 4, bottom: 2),
+              child: Text(
+                'Utilisé par: $componentName',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
                 ),
-              );
-            }
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            hexColor,
-            style: const TextStyle(
-              fontFamily: 'Roboto Mono',
-              fontSize: 14,
+              ),
             ),
+          ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 8),
+            title: Text(label),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    // Afficher un dialogue pour éditer le code HEX
+                    final String? newHexColor = await _showHexEditDialog(context, hexColor);
+                    if (newHexColor != null) {
+                      try {
+                        // Convertir le code HEX en couleur
+                        String hex = newHexColor;
+                        if (hex.startsWith('#')) {
+                          hex = hex.substring(1);
+                        }
+                        // Ajouter l'alpha (FF) si nécessaire
+                        if (hex.length == 6) {
+                          hex = 'FF$hex';
+                        }
+                        final newColor = Color(int.parse(hex, radix: 16));
+                        // Mettre à jour la couleur
+                        themeController.updateThemeColor(colorName, newColor);
+                        // Forcer la mise à jour de l'interface
+                        setState(() {});
+                      } catch (e) {
+                        // Afficher une erreur si le format est invalide
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Invalid HEX color format'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      hexColor,
+                      style: const TextStyle(
+                        fontFamily: 'Roboto Mono',
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+                if (isHighlighted)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      'Cliquez pour modifier cette couleur',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            trailing: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 1,
+                ),
+              ),
+            ),
+            onTap: () async {
+              final Color? newColor = await showColorPicker(context, color);
+              if (newColor != null) {
+                themeController.updateThemeColor(colorName, newColor);
+                // Forcer la mise à jour de l'interface
+                setState(() {});
+              }
+            },
           ),
-        ),
+        ],
       ),
-      trailing: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline,
-            width: 1,
-          ),
-        ),
-      ),
-      onTap: () async {
-        final Color? newColor = await showColorPicker(context, color);
-        if (newColor != null) {
-          themeController.updateThemeColor(colorName, newColor);
-          // Forcer la mise à jour de l'interface
-          setState(() {});
-        }
-      },
     );
   }
 
@@ -665,3 +718,97 @@ class _ColorPickerState extends State<ColorPicker> {
     );
   }
 }
+
+// Supprimer toute cette section ci-dessous (la deuxième définition de ThemeEditorDrawer)
+// class ThemeEditorDrawer extends StatelessWidget {
+//   const ThemeEditorDrawer({super.key});
+//   
+//   @override
+//   Widget build(BuildContext context) {
+//     final themeController = Provider.of<ThemeController>(context);
+//     final selectedInfo = themeController.selectedComponentInfo;
+//     
+//     // Fonction pour vérifier si une propriété de couleur est utilisée par le composant sélectionné
+//     bool isColorHighlighted(String colorProperty) {
+//       if (selectedInfo == null) return false;
+//       return selectedInfo.usedColorProperties.contains(colorProperty);
+//     }
+//     
+//     // Fonction pour créer un sélecteur de couleur avec surbrillance conditionnelle
+//     Widget colorSelector(String label, Color color, Function(Color) onColorChanged, String colorProperty) {
+//       return Container(
+//         decoration: BoxDecoration(
+//           border: isColorHighlighted(colorProperty)
+//               ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+//               : null,
+//           borderRadius: BorderRadius.circular(8),
+//         ),
+//         margin: const EdgeInsets.symmetric(vertical: 4),
+//         padding: const EdgeInsets.all(isColorHighlighted(colorProperty) ? 4 : 0),
+//         child: Row(
+//           children: [
+//             Text(label),
+//             const Spacer(),
+//             GestureDetector(
+//               onTap: () {
+//                 // Ouvrir le sélecteur de couleur (implémentation simplifiée)
+//                 showDialog(
+//                   context: context,
+//                   builder: (context) => AlertDialog(
+//                     title: Text('Choisir $label'),
+//                     content: SingleChildScrollView(
+//                       child: ColorPicker(
+//                         pickerColor: color,
+//                         onColorChanged: onColorChanged,
+//                       ),
+//                     ),
+//                     actions: [
+//                       TextButton(
+//                         onPressed: () => Navigator.of(context).pop(),
+//                         child: const Text('OK'),
+//                       ),
+//                     ],
+//                   ),
+//                 );
+//               },
+//               child: Container(
+//                 width: 40,
+//                 height: 40,
+//                 decoration: BoxDecoration(
+//                   color: color,
+//                   border: Border.all(color: Colors.grey),
+//                   borderRadius: BorderRadius.circular(4),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       );
+//     }
+//     
+//     // Utilisez cette fonction pour tous vos sélecteurs de couleur
+//     return SingleChildScrollView(
+//       child: Padding(
+//         padding: const EdgeInsets.all(16),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text('Theme Editor', style: Theme.of(context).textTheme.titleLarge),
+//             const SizedBox(height: 16),
+//             
+//             // Exemple pour primary
+//             colorSelector(
+//               'Primary',
+//               themeController.getCurrentColor('primary'),
+//               (color) => themeController.updateThemeColor('primary', color),
+//               'primary',
+//             ),
+//             
+//             // Ajoutez d'autres sélecteurs de couleur de la même manière
+//             // ...
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

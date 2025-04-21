@@ -3,222 +3,255 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import '../models/theme_model.dart';
 import 'material_theme.dart';
 
+import 'package:flutter/material.dart';
+import '../models/theme_model.dart';
+
+// Enum pour les niveaux de contraste
 enum ContrastLevel {
   normal,
   medium,
   high,
 }
 
+// Classe pour stocker les informations sur le composant sélectionné
+class ComponentInfo {
+  final String componentName;
+  final List<String> usedColorProperties;
+  
+  ComponentInfo(this.componentName, this.usedColorProperties);
+}
+
 class ThemeController extends ChangeNotifier {
-  // Modèles de thème existants
+  // Modèles de thème pour différents modes et niveaux de contraste
   final ThemeModel _currentThemeModel = ThemeModel();
   final ThemeModel _darkThemeModel = ThemeModel();
+  final ThemeModel _lightMediumContrastModel = ThemeModel();
+  final ThemeModel _lightHighContrastModel = ThemeModel();
+  final ThemeModel _darkMediumContrastModel = ThemeModel();
+  final ThemeModel _darkHighContrastModel = ThemeModel();
   
-  // Nouveaux modèles pour les différents niveaux de contraste
-  late ThemeModel _lightMediumContrastModel;
-  late ThemeModel _lightHighContrastModel;
-  late ThemeModel _darkMediumContrastModel;
-  late ThemeModel _darkHighContrastModel;
-  ThemeMode _themeMode = ThemeMode.light;
-  ContrastLevel _contrastLevel = ContrastLevel.normal;
-  
-  // Nouvelles propriétés pour flex_color_scheme
-  FlexScheme _flexScheme = FlexScheme.material;
-  bool _useFlexColorScheme = false;
-  double _blendLevel = 0;
-  bool _useMaterial3 = true;
-  
-  // Instance de MaterialTheme pour accéder aux thèmes prédéfinis
-  final MaterialTheme _materialTheme = const MaterialTheme();
-  
-  // Constructeur
-  ThemeController() {
-    // Ne pas réassigner les variables finales
-    // _currentThemeModel = ThemeModel(); // Supprimer cette ligne
-    // _darkThemeModel = ThemeModel();    // Supprimer cette ligne
-    _initializeFromMaterialTheme();
-  }
-
-  // Initialiser le modèle de thème à partir de MaterialTheme
-  void _initializeFromMaterialTheme() {
-    // Initialiser le modèle light normal
-    final lightScheme = MaterialTheme.lightScheme().toColorScheme();
-    _initializeThemeModel(_currentThemeModel, lightScheme);
-    
-    // Initialiser le modèle light medium contrast
-    final lightMediumScheme = MaterialTheme.lightMediumContrastScheme().toColorScheme();
-    _lightMediumContrastModel = ThemeModel();
-    _initializeThemeModel(_lightMediumContrastModel, lightMediumScheme);
-    
-    // Initialiser le modèle light high contrast
-    final lightHighScheme = MaterialTheme.lightHighContrastScheme().toColorScheme();
-    _lightHighContrastModel = ThemeModel();
-    _initializeThemeModel(_lightHighContrastModel, lightHighScheme);
-    
-    // Initialiser le modèle dark normal
-    final darkScheme = MaterialTheme.darkScheme().toColorScheme();
-    _initializeThemeModel(_darkThemeModel, darkScheme);
-    
-    // Initialiser le modèle dark medium contrast
-    final darkMediumScheme = MaterialTheme.darkMediumContrastScheme().toColorScheme();
-    _darkMediumContrastModel = ThemeModel();
-    _initializeThemeModel(_darkMediumContrastModel, darkMediumScheme);
-    
-    // Initialiser le modèle dark high contrast
-    final darkHighScheme = MaterialTheme.darkHighContrastScheme().toColorScheme();
-    _darkHighContrastModel = ThemeModel();
-    _initializeThemeModel(_darkHighContrastModel, darkHighScheme);
-  }
-
-  // Méthode d'aide pour initialiser un modèle de thème à partir d'un schéma de couleurs
-  void _initializeThemeModel(ThemeModel model, ColorScheme scheme) {
-    model.primary = scheme.primary;
-    model.onPrimary = scheme.onPrimary;
-    model.primaryContainer = scheme.primaryContainer;
-    model.onPrimaryContainer = scheme.onPrimaryContainer;
-    model.secondary = scheme.secondary;
-    model.onSecondary = scheme.onSecondary;
-    model.secondaryContainer = scheme.secondaryContainer;
-    model.onSecondaryContainer = scheme.onSecondaryContainer;
-    model.tertiary = scheme.tertiary;
-    model.onTertiary = scheme.onTertiary;
-    model.tertiaryContainer = scheme.tertiaryContainer;
-    model.onTertiaryContainer = scheme.onTertiaryContainer;
-    model.error = scheme.error;
-    model.onError = scheme.onError;
-    model.errorContainer = scheme.errorContainer;
-    model.onErrorContainer = scheme.onErrorContainer;
-    model.background = scheme.background;
-    model.onBackground = scheme.onBackground;
-    model.surface = scheme.surface;
-    model.onSurface = scheme.onSurface;
-  }
-  
-  // Getters
+  // Getters pour exposer les modèles
   ThemeModel get currentThemeModel => _currentThemeModel;
   ThemeModel get darkThemeModel => _darkThemeModel;
   ThemeModel get lightMediumContrastModel => _lightMediumContrastModel;
   ThemeModel get lightHighContrastModel => _lightHighContrastModel;
   ThemeModel get darkMediumContrastModel => _darkMediumContrastModel;
   ThemeModel get darkHighContrastModel => _darkHighContrastModel;
+  
+  // Mode de thème actuel
+  ThemeMode _themeMode = ThemeMode.light;
   ThemeMode get themeMode => _themeMode;
+  
+  // Niveau de contraste actuel
+  ContrastLevel _contrastLevel = ContrastLevel.normal;
   ContrastLevel get contrastLevel => _contrastLevel;
-
-  // Obtenir le thème light en fonction du niveau de contraste
-  ThemeData get lightTheme {
+  
+  // Informations sur le composant sélectionné
+  ComponentInfo? _selectedComponentInfo;
+  ComponentInfo? get selectedComponentInfo => _selectedComponentInfo;
+  
+  // Propriétés pour FlexColorScheme
+  bool _useFlexColorScheme = false;
+  bool get useFlexColorScheme => _useFlexColorScheme;
+  
+  FlexScheme _flexScheme = FlexScheme.material;
+  FlexScheme get flexScheme => _flexScheme;
+  
+  double _blendLevel = 20;
+  double get blendLevel => _blendLevel;
+  
+  bool _useMaterial3 = true;
+  bool get useMaterial3 => _useMaterial3;
+  
+  // Constructeur
+  ThemeController() {
+    _initializeThemes();
+  }
+  
+  // Initialiser les thèmes
+  void _initializeThemes() {
+    // Utiliser le schéma de couleur Material 3 Purple au lieu du schéma générique
+    final lightColorScheme = ColorScheme.fromSeed(
+      seedColor: const Color(0xFF6750A4), // Couleur primaire du thème Purple
+      brightness: Brightness.light,
+    );
+    
+    final darkColorScheme = ColorScheme.fromSeed(
+      seedColor: const Color(0xFF6750A4), // Couleur primaire du thème Purple
+      brightness: Brightness.dark,
+    );
+    
+    // Initialiser le thème clair normal
+    _initializeThemeModel(_currentThemeModel, lightColorScheme);
+    
+    // Initialiser le thème sombre normal
+    _initializeThemeModel(_darkThemeModel, darkColorScheme);
+    
+    // Initialiser les thèmes à contraste moyen
+    _initializeThemeModel(_lightMediumContrastModel, lightColorScheme);
+    _initializeThemeModel(_darkMediumContrastModel, darkColorScheme);
+    
+    // Initialiser les thèmes à contraste élevé
+    _initializeThemeModel(_lightHighContrastModel, lightColorScheme);
+    _initializeThemeModel(_darkHighContrastModel, darkColorScheme);
+  }
+  
+  // Initialiser un modèle de thème à partir d'un ColorScheme
+  void _initializeThemeModel(ThemeModel model, ColorScheme scheme) {
+    model.primary = scheme.primary;
+    model.onPrimary = scheme.onPrimary;
+    model.primaryContainer = scheme.primaryContainer;
+    model.onPrimaryContainer = scheme.onPrimaryContainer;
+    
+    model.secondary = scheme.secondary;
+    model.onSecondary = scheme.onSecondary;
+    model.secondaryContainer = scheme.secondaryContainer;
+    model.onSecondaryContainer = scheme.onSecondaryContainer;
+    
+    model.tertiary = scheme.tertiary;
+    model.onTertiary = scheme.onTertiary;
+    model.tertiaryContainer = scheme.tertiaryContainer;
+    model.onTertiaryContainer = scheme.onTertiaryContainer;
+    
+    model.error = scheme.error;
+    model.onError = scheme.onError;
+    model.errorContainer = scheme.errorContainer;
+    model.onErrorContainer = scheme.onErrorContainer;
+    
+    model.background = scheme.background;
+    model.onBackground = scheme.onBackground;
+    
+    model.surface = scheme.surface;
+    model.onSurface = scheme.onSurface;
+    model.surfaceVariant = scheme.surfaceVariant;
+    model.onSurfaceVariant = scheme.onSurfaceVariant;
+    
+    model.outline = scheme.outline;
+    model.outlineVariant = scheme.outlineVariant;
+    
+    // Nouvelles propriétés pour Material 3
+    model.surfaceContainer = scheme.surface.withOpacity(0.9);
+    model.surfaceContainerLow = scheme.surface.withOpacity(0.95);
+    model.surfaceContainerHigh = scheme.surface.withOpacity(0.85);
+    model.surfaceContainerHighest = scheme.surface.withOpacity(0.8);
+    model.surfaceBright = scheme.brightness == Brightness.light ? Colors.white : Colors.grey.shade900;
+    model.surfaceDim = scheme.brightness == Brightness.light ? Colors.grey.shade50 : Colors.grey.shade800;
+    model.elevation = scheme.brightness == Brightness.light ? Colors.black12 : Colors.white12;
+  }
+  
+  // Obtenir le thème actuel
+  ThemeData get currentTheme {
+    final brightness = _themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light;
+    final model = _getModelForCurrentSettings();
+    
     if (_useFlexColorScheme) {
+      return _createFlexTheme(brightness);
+    } else {
+      return ThemeData(
+        useMaterial3: _useMaterial3,
+        colorScheme: model.toColorScheme(brightness),
+        brightness: brightness,
+      );
+    }
+  }
+  
+  // Créer un thème avec FlexColorScheme
+  ThemeData _createFlexTheme(Brightness brightness) {
+    if (brightness == Brightness.light) {
       return FlexThemeData.light(
         scheme: _flexScheme,
-        useMaterial3: _useMaterial3,
         blendLevel: _blendLevel.toInt(),
-        appBarElevation: 0.5,
-        subThemesData: const FlexSubThemesData(
-          blendOnLevel: 10,
-          blendOnColors: false,
-          useTextTheme: true,
-          useM2StyleDividerInM3: true,
-        ),
-        visualDensity: FlexColorScheme.comfortablePlatformDensity,
-        // Vous pouvez personnaliser davantage ici
+        useMaterial3: _useMaterial3,
       );
     } else {
-      // Utiliser votre logique existante
-      switch (_contrastLevel) {
-        case ContrastLevel.normal:
-          return _materialTheme.light();
-        case ContrastLevel.medium:
-          return _materialTheme.lightMediumContrast();
-        case ContrastLevel.high:
-          return _materialTheme.lightHighContrast();
-      }
-    }
-  }
-
-  // Méthode pour obtenir le thème dark avec flex_color_scheme
-  ThemeData get darkTheme {
-    if (_useFlexColorScheme) {
       return FlexThemeData.dark(
         scheme: _flexScheme,
-        useMaterial3: _useMaterial3,
         blendLevel: _blendLevel.toInt(),
-        appBarElevation: 1,
-        subThemesData: const FlexSubThemesData(
-          blendOnLevel: 15,
-          useTextTheme: true,
-          useM2StyleDividerInM3: true,
-        ),
-        visualDensity: FlexColorScheme.comfortablePlatformDensity,
-        // Vous pouvez personnaliser davantage ici
+        useMaterial3: _useMaterial3,
       );
-    } else {
-      // Utiliser votre logique existante
+    }
+  }
+  
+  // Getters pour les thèmes light et dark (pour MaterialApp)
+  ThemeData get lightTheme => _useFlexColorScheme 
+      ? _createFlexTheme(Brightness.light) 
+      : ThemeData(
+          useMaterial3: _useMaterial3,
+          colorScheme: _currentThemeModel.toColorScheme(Brightness.light),
+          brightness: Brightness.light,
+        );
+  
+  ThemeData get darkTheme => _useFlexColorScheme 
+      ? _createFlexTheme(Brightness.dark) 
+      : ThemeData(
+          useMaterial3: _useMaterial3,
+          colorScheme: _darkThemeModel.toColorScheme(Brightness.dark),
+          brightness: Brightness.dark,
+        );
+  
+  // Obtenir le modèle de thème en fonction des paramètres actuels
+  ThemeModel _getModelForCurrentSettings() {
+    if (_themeMode == ThemeMode.dark) {
       switch (_contrastLevel) {
         case ContrastLevel.normal:
-          return _materialTheme.dark();
+          return _darkThemeModel;
         case ContrastLevel.medium:
-          return _materialTheme.darkMediumContrast();
+          return _darkMediumContrastModel;
         case ContrastLevel.high:
-          return _materialTheme.darkHighContrast();
+          return _darkHighContrastModel;
+      }
+    } else {
+      switch (_contrastLevel) {
+        case ContrastLevel.normal:
+          return _currentThemeModel;
+        case ContrastLevel.medium:
+          return _lightMediumContrastModel;
+        case ContrastLevel.high:
+          return _lightHighContrastModel;
       }
     }
   }
   
-  // Méthodes pour modifier les propriétés de flex_color_scheme
-  void setFlexScheme(FlexScheme scheme) {
-    if (_flexScheme != scheme) {
-      _flexScheme = scheme;
-      notifyListeners();
-    }
-  }
-  
-  void setUseFlexColorScheme(bool use) {
-    if (_useFlexColorScheme != use) {
-      _useFlexColorScheme = use;
-      notifyListeners();
-    }
-  }
-  
-  void setBlendLevel(double level) {
-    if (_blendLevel != level) {
-      _blendLevel = level;
-      notifyListeners();
-    }
-  }
-  
-  void setUseMaterial3(bool use) {
-    if (_useMaterial3 != use) {
-      _useMaterial3 = use;
-      notifyListeners();
-    }
-  }
-  
-  // Pour compatibilité avec main.dart
-  ColorScheme get lightColorScheme => lightTheme.colorScheme;
-  ColorScheme get darkColorScheme => darkTheme.colorScheme;
-
-  // Méthodes pour modifier le thème
+  // Définir le mode de thème
   void setThemeMode(ThemeMode mode) {
-    if (_themeMode != mode) {
-      _themeMode = mode;
-      print("ThemeController: Theme mode set to $_themeMode");
-      notifyListeners();
-    }
+    _themeMode = mode;
+    notifyListeners();
   }
-
-  void toggleThemeMode() {
-    final newMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    setThemeMode(newMode);
-  }
-
+  
+  // Définir le niveau de contraste
   void setContrastLevel(ContrastLevel level) {
-    if (_contrastLevel != level) {
-      _contrastLevel = level;
-      print("ThemeController: Contrast level set to $_contrastLevel");
-      notifyListeners();
-    }
+    _contrastLevel = level;
+    notifyListeners();
   }
-
-  // Méthode pour mettre à jour une couleur du thème
+  
+  // Définir le composant sélectionné
+  void setSelectedComponent(String componentName, List<String> colorProperties) {
+    _selectedComponentInfo = ComponentInfo(componentName, colorProperties);
+    notifyListeners();
+  }
+  
+  // Méthodes pour FlexColorScheme
+  void setUseFlexColorScheme(bool value) {
+    _useFlexColorScheme = value;
+    notifyListeners();
+  }
+  
+  void setFlexScheme(FlexScheme scheme) {
+    _flexScheme = scheme;
+    notifyListeners();
+  }
+  
+  void setBlendLevel(double value) {
+    _blendLevel = value;
+    notifyListeners();
+  }
+  
+  void setUseMaterial3(bool value) {
+    _useMaterial3 = value;
+    notifyListeners();
+  }
+  
+  // Mettre à jour une couleur du thème
   void updateThemeColor(String colorName, Color color) {
     // Déterminer quel modèle mettre à jour en fonction du mode actuel ET du niveau de contraste
     ThemeModel modelToUpdate;
@@ -249,9 +282,6 @@ class ThemeController extends ChangeNotifier {
           break;
       }
     }
-    
-    // Ajouter un log pour déboguer
-    print("ThemeController: Updating $colorName to $color in ${_themeMode.toString()} mode with ${_contrastLevel.toString()} contrast");
     
     // Mettre à jour la couleur dans le modèle approprié
     switch (colorName) {
@@ -315,13 +345,47 @@ class ThemeController extends ChangeNotifier {
       case 'onSurface':
         modelToUpdate.onSurface = color;
         break;
+      case 'surfaceVariant':
+        modelToUpdate.surfaceVariant = color;
+        break;
+      case 'onSurfaceVariant':
+        modelToUpdate.onSurfaceVariant = color;
+        break;
+      case 'outline':
+        modelToUpdate.outline = color;
+        break;
+      case 'outlineVariant':
+        modelToUpdate.outlineVariant = color;
+        break;
+      // Nouveaux cas
+      case 'surfaceContainer':
+        modelToUpdate.surfaceContainer = color;
+        break;
+      case 'surfaceContainerLow':
+        modelToUpdate.surfaceContainerLow = color;
+        break;
+      case 'surfaceContainerHigh':
+        modelToUpdate.surfaceContainerHigh = color;
+        break;
+      case 'surfaceContainerHighest':
+        modelToUpdate.surfaceContainerHighest = color;
+        break;
+      case 'surfaceBright':
+        modelToUpdate.surfaceBright = color;
+        break;
+      case 'surfaceDim':
+        modelToUpdate.surfaceDim = color;
+        break;
+      case 'elevation':
+        modelToUpdate.elevation = color;
+        break;
     }
     
     // Notifier les écouteurs du changement
     notifyListeners();
   }
-
-  // Méthode pour obtenir la couleur actuelle en fonction du mode et du niveau de contraste
+  
+  // Obtenir la couleur actuelle en fonction du mode et du niveau de contraste
   Color getCurrentColor(String colorName) {
     bool isDark = _themeMode == ThemeMode.dark;
     ThemeModel modelToUse;
@@ -375,84 +439,20 @@ class ThemeController extends ChangeNotifier {
       case 'onBackground': return modelToUse.onBackground;
       case 'surface': return modelToUse.surface;
       case 'onSurface': return modelToUse.onSurface;
+      case 'surfaceVariant': return modelToUse.surfaceVariant;
+      case 'onSurfaceVariant': return modelToUse.onSurfaceVariant;
+      case 'outline': return modelToUse.outline;
+      case 'outlineVariant': return modelToUse.outlineVariant;
+      // Nouveaux cas
+      case 'surfaceContainer': return modelToUse.surfaceContainer;
+      case 'surfaceContainerLow': return modelToUse.surfaceContainerLow;
+      case 'surfaceContainerHigh': return modelToUse.surfaceContainerHigh;
+      case 'surfaceContainerHighest': return modelToUse.surfaceContainerHighest;
+      case 'surfaceBright': return modelToUse.surfaceBright;
+      case 'surfaceDim': return modelToUse.surfaceDim;
+      case 'elevation': return modelToUse.elevation;
+      
       default: return isDark ? Colors.black : Colors.white;
     }
   }
-
-  // Méthode pour créer un thème personnalisé basé sur le thème actuel
-  ThemeData _createCustomTheme(bool isDark) {
-    // Obtenir le thème de base
-    ThemeData baseTheme = isDark ? darkTheme : lightTheme;
-    ColorScheme baseColorScheme = baseTheme.colorScheme;
-    
-    // Utiliser le modèle approprié en fonction du niveau de contraste
-    ThemeModel modelToUse;
-    
-    if (isDark) {
-      switch (_contrastLevel) {
-        case ContrastLevel.normal:
-          modelToUse = _darkThemeModel;
-          break;
-        case ContrastLevel.medium:
-          modelToUse = _darkMediumContrastModel;
-          break;
-        case ContrastLevel.high:
-          modelToUse = _darkHighContrastModel;
-          break;
-      }
-    } else {
-      switch (_contrastLevel) {
-        case ContrastLevel.normal:
-          modelToUse = _currentThemeModel;
-          break;
-        case ContrastLevel.medium:
-          modelToUse = _lightMediumContrastModel;
-          break;
-        case ContrastLevel.high:
-          modelToUse = _lightHighContrastModel;
-          break;
-      }
-    }
-    
-    return baseTheme.copyWith(
-      colorScheme: baseColorScheme.copyWith(
-        primary: modelToUse.primary,
-        onPrimary: modelToUse.onPrimary,
-        primaryContainer: modelToUse.primaryContainer,
-        onPrimaryContainer: modelToUse.onPrimaryContainer,
-        secondary: modelToUse.secondary,
-        onSecondary: modelToUse.onSecondary,
-        secondaryContainer: modelToUse.secondaryContainer,
-        onSecondaryContainer: modelToUse.onSecondaryContainer,
-        tertiary: modelToUse.tertiary,
-        onTertiary: modelToUse.onTertiary,
-        tertiaryContainer: modelToUse.tertiaryContainer,
-        onTertiaryContainer: modelToUse.onTertiaryContainer,
-        error: modelToUse.error,
-        onError: modelToUse.onError,
-        errorContainer: modelToUse.errorContainer,
-        onErrorContainer: modelToUse.onErrorContainer,
-        background: modelToUse.background,
-        onBackground: modelToUse.onBackground,
-        surface: modelToUse.surface,
-        onSurface: modelToUse.onSurface,
-      ),
-    );
-  }
-
-  // Méthode pour obtenir le thème actuel
-  ThemeData get currentTheme {
-    bool isDark = _themeMode == ThemeMode.dark;
-    return _createCustomTheme(isDark);
-  }
-
-  // Getters pour les thèmes personnalisés
-  ThemeData get customLightTheme => _createCustomTheme(false);
-  ThemeData get customDarkTheme => _createCustomTheme(true);
-  
-  // Getters pour les propriétés de flex_color_scheme
-  FlexScheme get flexScheme => _flexScheme;
-  bool get useFlexColorScheme => _useFlexColorScheme;
-  double get blendLevel => _blendLevel;
-  bool get useMaterial3 => _useMaterial3;
-}  // Accolade fermante manquante pour la classe ThemeController
+}

@@ -1,121 +1,88 @@
 import 'package:flutter/material.dart';
 
 class ThemeModel {
-  // Couleurs primaires
-  Color primary = const Color(0xFF6750A4);
-  Color onPrimary = const Color(0xFFFFFFFF);
-  Color primaryContainer = const Color(0xFFEADDFF);
-  Color onPrimaryContainer = const Color(0xFF21005D);
+  // Propriétés de couleur principales
+  Color primary = Colors.blue;
+  Color onPrimary = Colors.white;
+  Color primaryContainer = Colors.blue.shade100;
+  Color onPrimaryContainer = Colors.blue.shade900;
   
-  // Couleurs secondaires
-  Color secondary = const Color(0xFF625B71);
-  Color onSecondary = const Color(0xFFFFFFFF);
-  Color secondaryContainer = const Color(0xFFE8DEF8);
-  Color onSecondaryContainer = const Color(0xFF1D192B);
+  // Propriétés de couleur secondaires
+  Color secondary = Colors.teal;
+  Color onSecondary = Colors.white;
+  Color secondaryContainer = Colors.teal.shade100;
+  Color onSecondaryContainer = Colors.teal.shade900;
   
-  // Couleurs tertiaires
-  Color tertiary = const Color(0xFF7D5260);
-  Color onTertiary = const Color(0xFFFFFFFF);
-  Color tertiaryContainer = const Color(0xFFFFD8E4);
-  Color onTertiaryContainer = const Color(0xFF31111D);
+  // Propriétés de couleur tertiaires
+  Color tertiary = Colors.amber;
+  Color onTertiary = Colors.black;
+  Color tertiaryContainer = Colors.amber.shade100;
+  Color onTertiaryContainer = Colors.amber.shade900;
   
-  // Couleurs d'erreur
-  Color error = const Color(0xFFB3261E);
-  Color onError = const Color(0xFFFFFFFF);
-  Color errorContainer = const Color(0xFFF9DEDC);
-  Color onErrorContainer = const Color(0xFF410E0B);
+  // Propriétés de couleur d'erreur
+  Color error = Colors.red;
+  Color onError = Colors.white;
+  Color errorContainer = Colors.red.shade100;
+  Color onErrorContainer = Colors.red.shade900;
   
-  // Couleurs de fond et de surface
-  Color background = const Color(0xFFFFFBFE);
-  Color onBackground = const Color(0xFF1C1B1F);
-  Color surface = const Color(0xFFFFFBFE);
-  Color onSurface = const Color(0xFF1C1B1F);
+  // Propriétés de couleur de fond
+  Color background = Colors.white;
+  Color onBackground = Colors.black;
   
-  // Constructeur par défaut
-  ThemeModel();
+  // Propriétés de couleur de surface
+  Color surface = Colors.white;
+  Color onSurface = Colors.black;
+  Color surfaceVariant = Colors.grey.shade100;
+  Color onSurfaceVariant = Colors.grey.shade800;
   
-  // Constructeur de copie
-  ThemeModel.copy(ThemeModel other) {
-    primary = other.primary;
-    onPrimary = other.onPrimary;
-    primaryContainer = other.primaryContainer;
-    onPrimaryContainer = other.onPrimaryContainer;
-    secondary = other.secondary;
-    onSecondary = other.onSecondary;
-    secondaryContainer = other.secondaryContainer;
-    onSecondaryContainer = other.onSecondaryContainer;
-    tertiary = other.tertiary;
-    onTertiary = other.onTertiary;
-    tertiaryContainer = other.tertiaryContainer;
-    onTertiaryContainer = other.onTertiaryContainer;
-    error = other.error;
-    onError = other.onError;
-    errorContainer = other.errorContainer;
-    onErrorContainer = other.onErrorContainer;
-    background = other.background;
-    onBackground = other.onBackground;
-    surface = other.surface;
-    onSurface = other.onSurface;
-  }
+  // Propriétés de couleur d'outline
+  Color outline = Colors.grey.shade400;
+  Color outlineVariant = Colors.grey.shade200;
   
-  // Méthode pour créer un thème à partir d'une couleur de base
-  static ThemeModel fromSeed(Color seedColor) {
-    // Cette méthode pourrait utiliser ColorScheme.fromSeed pour générer un schéma de couleurs
-    // Pour l'instant, nous retournons simplement un thème par défaut
-    return ThemeModel();
-  }
+  // Nouvelles propriétés pour Material 3
+  Color surfaceContainer = Colors.grey.shade200;
+  Color surfaceContainerLow = Colors.grey.shade100;
+  Color surfaceContainerHigh = Colors.grey.shade300;
+  Color surfaceContainerHighest = Colors.grey.shade400;
+  Color surfaceBright = Colors.white;
+  Color surfaceDim = Colors.grey.shade50;
+  Color elevation = Colors.black12;
   
-  // Méthode pour convertir en Map (utile pour la sérialisation)
-  Map<String, dynamic> toMap() {
-    return {
-      'primary': primary.value,
-      'onPrimary': onPrimary.value,
-      'primaryContainer': primaryContainer.value,
-      'onPrimaryContainer': onPrimaryContainer.value,
-      'secondary': secondary.value,
-      'onSecondary': onSecondary.value,
-      'secondaryContainer': secondaryContainer.value,
-      'onSecondaryContainer': onSecondaryContainer.value,
-      'tertiary': tertiary.value,
-      'onTertiary': onTertiary.value,
-      'tertiaryContainer': tertiaryContainer.value,
-      'onTertiaryContainer': onTertiaryContainer.value,
-      'error': error.value,
-      'onError': onError.value,
-      'errorContainer': errorContainer.value,
-      'onErrorContainer': onErrorContainer.value,
-      'background': background.value,
-      'onBackground': onBackground.value,
-      'surface': surface.value,
-      'onSurface': onSurface.value,
-    };
-  }
-  
-  // Méthode pour créer à partir d'une Map (utile pour la désérialisation)
-  static ThemeModel fromMap(Map<String, dynamic> map) {
-    final theme = ThemeModel();
-    
-    theme.primary = Color(map['primary'] as int);
-    theme.onPrimary = Color(map['onPrimary'] as int);
-    theme.primaryContainer = Color(map['primaryContainer'] as int);
-    theme.onPrimaryContainer = Color(map['onPrimaryContainer'] as int);
-    theme.secondary = Color(map['secondary'] as int);
-    theme.onSecondary = Color(map['onSecondary'] as int);
-    theme.secondaryContainer = Color(map['secondaryContainer'] as int);
-    theme.onSecondaryContainer = Color(map['onSecondaryContainer'] as int);
-    theme.tertiary = Color(map['tertiary'] as int);
-    theme.onTertiary = Color(map['onTertiary'] as int);
-    theme.tertiaryContainer = Color(map['tertiaryContainer'] as int);
-    theme.onTertiaryContainer = Color(map['onTertiaryContainer'] as int);
-    theme.error = Color(map['error'] as int);
-    theme.onError = Color(map['onError'] as int);
-    theme.errorContainer = Color(map['errorContainer'] as int);
-    theme.onErrorContainer = Color(map['onErrorContainer'] as int);
-    theme.background = Color(map['background'] as int);
-    theme.onBackground = Color(map['onBackground'] as int);
-    theme.surface = Color(map['surface'] as int);
-    theme.onSurface = Color(map['onSurface'] as int);
-    
-    return theme;
+  // Méthode pour créer un ColorScheme à partir du modèle
+  ColorScheme toColorScheme(Brightness brightness) {
+    return ColorScheme(
+      brightness: brightness,
+      primary: primary,
+      onPrimary: onPrimary,
+      primaryContainer: primaryContainer,
+      onPrimaryContainer: onPrimaryContainer,
+      secondary: secondary,
+      onSecondary: onSecondary,
+      secondaryContainer: secondaryContainer,
+      onSecondaryContainer: onSecondaryContainer,
+      tertiary: tertiary,
+      onTertiary: onTertiary,
+      tertiaryContainer: tertiaryContainer,
+      onTertiaryContainer: onTertiaryContainer,
+      error: error,
+      onError: onError,
+      errorContainer: errorContainer,
+      onErrorContainer: onErrorContainer,
+      background: background,
+      onBackground: onBackground,
+      surface: surface,
+      onSurface: onSurface,
+      surfaceVariant: surfaceVariant,
+      onSurfaceVariant: onSurfaceVariant,
+      outline: outline,
+      outlineVariant: outlineVariant,
+      shadow: Colors.black,
+      scrim: Colors.black54,
+      inverseSurface: brightness == Brightness.light ? Colors.black : Colors.white,
+      onInverseSurface: brightness == Brightness.light ? Colors.white : Colors.black,
+      inversePrimary: brightness == Brightness.light 
+          ? HSLColor.fromColor(primary).withLightness(0.8).toColor() 
+          : HSLColor.fromColor(primary).withLightness(0.3).toColor(),
+    );
   }
 }
