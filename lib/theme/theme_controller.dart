@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import '../models/theme_model.dart';
 import 'material_theme.dart';
-
-import 'package:flutter/material.dart';
-import '../models/theme_model.dart';
+import '../themes/oroneo_theme.dart';
 
 // Enum pour les niveaux de contraste
 enum ContrastLevel {
@@ -22,6 +20,16 @@ class ComponentInfo {
 }
 
 class ThemeController extends ChangeNotifier {
+  // Propriété pour le thème Oroneo
+  bool _useOroneoTheme = false;
+  bool get useOroneoTheme => _useOroneoTheme;
+  
+  // Méthode pour basculer entre le thème standard et le thème Oroneo
+  void toggleOroneoTheme() {
+    _useOroneoTheme = !_useOroneoTheme;
+    notifyListeners();
+  }
+  
   // Modèles de thème pour différents modes et niveaux de contraste
   final ThemeModel _currentThemeModel = ThemeModel();
   final ThemeModel _darkThemeModel = ThemeModel();
@@ -172,21 +180,25 @@ class ThemeController extends ChangeNotifier {
   }
   
   // Getters pour les thèmes light et dark (pour MaterialApp)
-  ThemeData get lightTheme => _useFlexColorScheme 
-      ? _createFlexTheme(Brightness.light) 
-      : ThemeData(
-          useMaterial3: _useMaterial3,
-          colorScheme: _currentThemeModel.toColorScheme(Brightness.light),
-          brightness: Brightness.light,
-        );
+  ThemeData get lightTheme => _useOroneoTheme 
+      ? OroneoTheme.lightTheme 
+      : (_useFlexColorScheme 
+          ? _createFlexTheme(Brightness.light) 
+          : ThemeData(
+              useMaterial3: _useMaterial3,
+              colorScheme: _currentThemeModel.toColorScheme(Brightness.light),
+              brightness: Brightness.light,
+            ));
   
-  ThemeData get darkTheme => _useFlexColorScheme 
-      ? _createFlexTheme(Brightness.dark) 
-      : ThemeData(
-          useMaterial3: _useMaterial3,
-          colorScheme: _darkThemeModel.toColorScheme(Brightness.dark),
-          brightness: Brightness.dark,
-        );
+  ThemeData get darkTheme => _useOroneoTheme 
+      ? OroneoTheme.darkTheme 
+      : (_useFlexColorScheme 
+          ? _createFlexTheme(Brightness.dark) 
+          : ThemeData(
+              useMaterial3: _useMaterial3,
+              colorScheme: _darkThemeModel.toColorScheme(Brightness.dark),
+              brightness: Brightness.dark,
+            ));
   
   // Obtenir le modèle de thème en fonction des paramètres actuels
   ThemeModel _getModelForCurrentSettings() {

@@ -244,6 +244,10 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ],
                         ),
+                        
+                        // Ajout du bouton pour le thème Oroneo
+                        const SizedBox(height: 16),
+                        _buildOroneoThemeButton(),
                       ],
                     ),
                   ),
@@ -317,5 +321,40 @@ class _HomeViewState extends State<HomeView> {
       default:
         return ComponentPreview(viewType: _viewTitles[0]);
     }
+  }
+
+  // Méthode pour construire le bouton de thème Oroneo
+  Widget _buildOroneoThemeButton() {
+    final themeController = Provider.of<ThemeController>(context);
+    final currentTheme = themeController.currentTheme;
+    
+    return Column(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.style),
+          tooltip: 'Basculer vers le thème Oroneo',
+          onPressed: () {
+            Provider.of<ThemeController>(context, listen: false).toggleOroneoTheme();
+          },
+          style: IconButton.styleFrom(
+            backgroundColor: themeController.useOroneoTheme
+                ? currentTheme.colorScheme.primaryContainer
+                : Colors.transparent,
+            foregroundColor: themeController.useOroneoTheme
+                ? currentTheme.colorScheme.onPrimaryContainer
+                : currentTheme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Text(
+          'Oroneo',
+          style: TextStyle(
+            fontSize: 12,
+            color: themeController.useOroneoTheme
+                ? currentTheme.colorScheme.primary
+                : currentTheme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
   }
 }

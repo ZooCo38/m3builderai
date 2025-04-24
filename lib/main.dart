@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'theme/theme_controller.dart';
 import 'views/home_view.dart';
+import 'themes/oroneo_theme.dart'; // Importer le thème Oroneo
 
 void main() {
   runApp(
@@ -21,10 +22,12 @@ class MyApp extends StatelessWidget {
       builder: (context, themeController, child) {
         print("MyApp rebuilding with themeMode: ${themeController.themeMode}");
         
+        // Vous pouvez choisir d'utiliser le thème Oroneo par défaut
+        // ou de le proposer comme option dans ThemeController
         return MaterialApp(
-          title: 'M3 Builder AI',
-          theme: themeController.lightTheme,
-          darkTheme: themeController.darkTheme,
+          title: 'Oroneo Theme Builder',
+          theme: themeController.lightTheme, // Ou OroneoTheme.lightTheme
+          darkTheme: themeController.darkTheme, // Ou OroneoTheme.darkTheme
           themeMode: themeController.themeMode,
           home: const HomeView(),
         );
