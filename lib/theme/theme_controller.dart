@@ -66,34 +66,34 @@ class ThemeController extends ChangeNotifier {
   // Constructeur
   ThemeController() {
     _initializeThemes();
+    
+    // Nous n'avons plus besoin d'ajuster les contrastes car nous utilisons les schémas prédéfinis
+    // _adjustContrastForModels();
   }
   
   // Initialiser les thèmes
   void _initializeThemes() {
-    // Utiliser le schéma de couleur Material 3 Purple au lieu du schéma générique
-    final lightColorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF6750A4), // Couleur primaire du thème Purple
-      brightness: Brightness.light,
-    );
-    
-    final darkColorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF6750A4), // Couleur primaire du thème Purple
-      brightness: Brightness.dark,
-    );
+    // Utiliser les schémas de couleurs prédéfinis de MaterialTheme
+    final lightScheme = MaterialTheme.lightScheme().toColorScheme();
+    final darkScheme = MaterialTheme.darkScheme().toColorScheme();
+    final lightMediumContrastScheme = MaterialTheme.lightMediumContrastScheme().toColorScheme();
+    final lightHighContrastScheme = MaterialTheme.lightHighContrastScheme().toColorScheme();
+    final darkMediumContrastScheme = MaterialTheme.darkMediumContrastScheme().toColorScheme();
+    final darkHighContrastScheme = MaterialTheme.darkHighContrastScheme().toColorScheme();
     
     // Initialiser le thème clair normal
-    _initializeThemeModel(_currentThemeModel, lightColorScheme);
+    _initializeThemeModel(_currentThemeModel, lightScheme);
     
     // Initialiser le thème sombre normal
-    _initializeThemeModel(_darkThemeModel, darkColorScheme);
+    _initializeThemeModel(_darkThemeModel, darkScheme);
     
     // Initialiser les thèmes à contraste moyen
-    _initializeThemeModel(_lightMediumContrastModel, lightColorScheme);
-    _initializeThemeModel(_darkMediumContrastModel, darkColorScheme);
+    _initializeThemeModel(_lightMediumContrastModel, lightMediumContrastScheme);
+    _initializeThemeModel(_darkMediumContrastModel, darkMediumContrastScheme);
     
     // Initialiser les thèmes à contraste élevé
-    _initializeThemeModel(_lightHighContrastModel, lightColorScheme);
-    _initializeThemeModel(_darkHighContrastModel, darkColorScheme);
+    _initializeThemeModel(_lightHighContrastModel, lightHighContrastScheme);
+    _initializeThemeModel(_darkHighContrastModel, darkHighContrastScheme);
   }
   
   // Initialiser un modèle de thème à partir d'un ColorScheme
@@ -107,7 +107,6 @@ class ThemeController extends ChangeNotifier {
     model.onSecondary = scheme.onSecondary;
     model.secondaryContainer = scheme.secondaryContainer;
     model.onSecondaryContainer = scheme.onSecondaryContainer;
-    
     model.tertiary = scheme.tertiary;
     model.onTertiary = scheme.onTertiary;
     model.tertiaryContainer = scheme.tertiaryContainer;
@@ -221,9 +220,88 @@ class ThemeController extends ChangeNotifier {
   // Définir le niveau de contraste
   void setContrastLevel(ContrastLevel level) {
     _contrastLevel = level;
+    
+    // Pas besoin de régénérer les thèmes, car nous utilisons déjà les modèles
+    // appropriés dans les méthodes currentTheme, lightTheme et darkTheme
+    
     notifyListeners();
   }
   
+  // Supprimer cette méthode qui utilise des variables non définies
+  // void _regenerateThemes() {
+  //   _lightTheme = _createTheme(Brightness.light, _primaryColor, _contrastLevel);
+  //   _darkTheme = _createTheme(Brightness.dark, _primaryColor, _contrastLevel);
+  //   _currentTheme = themeMode == ThemeMode.dark ? _darkTheme : _lightTheme;
+  // }
+  
+  // Remplacer par une méthode qui ajuste les modèles existants
+  void _adjustContrastForModels() {
+    // Ajuster le contraste pour les modèles medium
+    _adjustModelContrast(_lightMediumContrastModel, _currentThemeModel, 0.1);
+    _adjustModelContrast(_darkMediumContrastModel, _darkThemeModel, 0.1);
+    
+    // Ajuster le contraste pour les modèles high
+    _adjustModelContrast(_lightHighContrastModel, _currentThemeModel, 0.2);
+    _adjustModelContrast(_darkHighContrastModel, _darkThemeModel, 0.2);
+  }
+  
+  // Méthode pour ajuster le contraste d'un modèle
+  void _adjustModelContrast(ThemeModel targetModel, ThemeModel baseModel, double factor) {
+    // Copier toutes les couleurs du modèle de base
+    targetModel.primary = baseModel.primary;
+    targetModel.primaryContainer = baseModel.primaryContainer;
+    targetModel.secondary = baseModel.secondary;
+    targetModel.secondaryContainer = baseModel.secondaryContainer;
+    targetModel.tertiary = baseModel.tertiary;
+    targetModel.tertiaryContainer = baseModel.tertiaryContainer;
+    targetModel.error = baseModel.error;
+    targetModel.errorContainer = baseModel.errorContainer;
+    targetModel.background = baseModel.background;
+    targetModel.onBackground = baseModel.onBackground;
+    targetModel.surface = baseModel.surface;
+    targetModel.onSurface = baseModel.onSurface;
+    targetModel.surfaceVariant = baseModel.surfaceVariant;
+    targetModel.onSurfaceVariant = baseModel.onSurfaceVariant;
+    targetModel.outline = baseModel.outline;
+    targetModel.outlineVariant = baseModel.outlineVariant;
+    
+    // Ajuster les couleurs "on" pour augmenter le contraste
+    targetModel.onBackground = _increaseContrast(baseModel.onBackground, baseModel.background, factor);
+    targetModel.onSurface = _increaseContrast(baseModel.onSurface, baseModel.surface, factor);
+    targetModel.onPrimary = _increaseContrast(baseModel.onPrimary, baseModel.primary, factor);
+    targetModel.onSecondary = _increaseContrast(baseModel.onSecondary, baseModel.secondary, factor);
+    targetModel.onTertiary = _increaseContrast(baseModel.onTertiary, baseModel.tertiary, factor);
+    targetModel.onPrimaryContainer = _increaseContrast(baseModel.onPrimaryContainer, baseModel.primaryContainer, factor);
+    targetModel.onSecondaryContainer = _increaseContrast(baseModel.onSecondaryContainer, baseModel.secondaryContainer, factor);
+    targetModel.onTertiaryContainer = _increaseContrast(baseModel.onTertiaryContainer, baseModel.tertiaryContainer, factor);
+    targetModel.onError = _increaseContrast(baseModel.onError, baseModel.error, factor);
+    targetModel.onErrorContainer = _increaseContrast(baseModel.onErrorContainer, baseModel.errorContainer, factor);
+    targetModel.onSurfaceVariant = _increaseContrast(baseModel.onSurfaceVariant, baseModel.surfaceVariant, factor);
+  }
+  
+  // Supprimer cette méthode qui utilise des variables non définies
+  // ThemeData _createTheme(Brightness brightness, Color primaryColor, ContrastLevel contrastLevel) {
+  //   // ...
+  // }
+  
+  // Garder la méthode _increaseContrast et _isDark
+  Color _increaseContrast(Color foreground, Color background, double factor) {
+    // Si le texte est déjà sombre sur fond clair ou clair sur fond sombre, augmenter le contraste
+    if (_isDark(background) && !_isDark(foreground)) {
+      // Éclaircir davantage le texte clair
+      return Color.lerp(foreground, Colors.white, factor)!;
+    } else if (!_isDark(background) && _isDark(foreground)) {
+      // Assombrir davantage le texte sombre
+      return Color.lerp(foreground, Colors.black, factor)!;
+    }
+    return foreground;
+  }
+  
+  bool _isDark(Color color) {
+    // Calculer la luminosité (0 = noir, 1 = blanc)
+    final luminance = color.computeLuminance();
+    return luminance < 0.5;
+  }
   // Définir le composant sélectionné
   void setSelectedComponent(String componentName, List<String> colorProperties) {
     _selectedComponentInfo = ComponentInfo(componentName, colorProperties);
