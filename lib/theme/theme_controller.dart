@@ -27,6 +27,16 @@ class ThemeController extends ChangeNotifier {
   // Méthode pour basculer entre le thème standard et le thème Oroneo
   void toggleOroneoTheme() {
     _useOroneoTheme = !_useOroneoTheme;
+    
+    if (_useOroneoTheme) {
+      // Charger les couleurs Oroneo dans les modèles
+      loadOroneoThemeIntoModels();
+    } else {
+      // Réinitialiser les thèmes
+      _initializeThemes();
+    }
+    
+    // Notifier les écouteurs pour mettre à jour l'interface
     notifyListeners();
   }
   
@@ -151,6 +161,7 @@ class ThemeController extends ChangeNotifier {
     final brightness = _themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light;
     final model = _getModelForCurrentSettings();
     
+    // Même si le thème Oroneo est activé, nous utilisons les modèles modifiés
     if (_useFlexColorScheme) {
       return _createFlexTheme(brightness);
     } else {
@@ -162,24 +173,52 @@ class ThemeController extends ChangeNotifier {
     }
   }
   
-  // Créer un thème avec FlexColorScheme
-  ThemeData _createFlexTheme(Brightness brightness) {
-    if (brightness == Brightness.light) {
-      return FlexThemeData.light(
-        scheme: _flexScheme,
-        blendLevel: _blendLevel.toInt(),
-        useMaterial3: _useMaterial3,
-      );
-    } else {
-      return FlexThemeData.dark(
-        scheme: _flexScheme,
-        blendLevel: _blendLevel.toInt(),
-        useMaterial3: _useMaterial3,
-      );
-    }
-  }
+  // SUPPRIMER ces getters dupliqués
+  // ThemeData get lightTheme => _getThemeForBrightness(Brightness.light);
+  // ThemeData get darkTheme => _getThemeForBrightness(Brightness.dark);
   
-  // Getters pour les thèmes light et dark (pour MaterialApp)
+  // SUPPRIMER cette méthode helper qui n'est plus utilisée
+  // ThemeData _getThemeForBrightness(Brightness brightness) {
+  //   if (_useFlexColorScheme) {
+  //     return _createFlexTheme(brightness);
+  //   } else {
+  //     final model = brightness == Brightness.light ? _currentThemeModel : _darkThemeModel;
+  //     return ThemeData(
+  //       useMaterial3: _useMaterial3,
+  //       colorScheme: model.toColorScheme(brightness),
+  //       brightness: brightness,
+  //     );
+  //   }
+  // }
+  
+  // SUPPRIMER ces getters dupliqués
+  // ThemeData get lightTheme {
+  //   // Même si le thème Oroneo est activé, nous utilisons les modèles modifiés
+  //   if (_useFlexColorScheme) {
+  //     return _createFlexTheme(Brightness.light);
+  //   } else {
+  //     return ThemeData(
+  //       useMaterial3: _useMaterial3,
+  //       colorScheme: _currentThemeModel.toColorScheme(Brightness.light),
+  //       brightness: Brightness.light,
+  //     );
+  //   }
+  // }
+  
+  // ThemeData get darkTheme {
+  //   // Même si le thème Oroneo est activé, nous utilisons les modèles modifiés
+  //   if (_useFlexColorScheme) {
+  //     return _createFlexTheme(Brightness.dark);
+  //   } else {
+  //     return ThemeData(
+  //       useMaterial3: _useMaterial3,
+  //       colorScheme: _darkThemeModel.toColorScheme(Brightness.dark),
+  //       brightness: Brightness.dark,
+  //     );
+  //   }
+  // }
+  
+  // GARDER uniquement ces getters pour les thèmes light et dark
   ThemeData get lightTheme => _useOroneoTheme 
       ? OroneoTheme.lightTheme 
       : (_useFlexColorScheme 
@@ -220,6 +259,23 @@ class ThemeController extends ChangeNotifier {
         case ContrastLevel.high:
           return _lightHighContrastModel;
       }
+    }
+  }
+  
+  // Créer un thème avec FlexColorScheme
+  ThemeData _createFlexTheme(Brightness brightness) {
+    if (brightness == Brightness.light) {
+      return FlexThemeData.light(
+        scheme: _flexScheme,
+        blendLevel: _blendLevel.toInt(),
+        useMaterial3: _useMaterial3,
+      );
+    } else {
+      return FlexThemeData.dark(
+        scheme: _flexScheme,
+        blendLevel: _blendLevel.toInt(),
+        useMaterial3: _useMaterial3,
+      );
     }
   }
   
@@ -295,6 +351,69 @@ class ThemeController extends ChangeNotifier {
   // ThemeData _createTheme(Brightness brightness, Color primaryColor, ContrastLevel contrastLevel) {
   //   // ...
   // }
+  
+  // Ajouter cette nouvelle méthode pour charger le thème Oroneo dans les modèles
+  void loadOroneoThemeIntoModels() {
+    if (_useOroneoTheme) {
+      // Charger les couleurs du thème Oroneo light dans le modèle light
+      _loadThemeDataIntoModel(OroneoTheme.lightTheme, _currentThemeModel);
+      
+      // Charger les couleurs du thème Oroneo dark dans le modèle dark
+      _loadThemeDataIntoModel(OroneoTheme.darkTheme, _darkThemeModel);
+      
+      // Pour les contrastes, on pourrait créer des versions à contraste élevé
+      // mais pour l'instant, utilisons les mêmes modèles
+      _loadThemeDataIntoModel(OroneoTheme.lightTheme, _lightMediumContrastModel);
+      _loadThemeDataIntoModel(OroneoTheme.lightTheme, _lightHighContrastModel);
+      _loadThemeDataIntoModel(OroneoTheme.darkTheme, _darkMediumContrastModel);
+      _loadThemeDataIntoModel(OroneoTheme.darkTheme, _darkHighContrastModel);
+    }
+  }
+  
+  // Méthode helper pour charger un ThemeData dans un ThemeModel
+  void _loadThemeDataIntoModel(ThemeData themeData, ThemeModel model) {
+    final colorScheme = themeData.colorScheme;
+    
+    model.primary = colorScheme.primary;
+    model.onPrimary = colorScheme.onPrimary;
+    model.primaryContainer = colorScheme.primaryContainer;
+    model.onPrimaryContainer = colorScheme.onPrimaryContainer;
+    
+    model.secondary = colorScheme.secondary;
+    model.onSecondary = colorScheme.onSecondary;
+    model.secondaryContainer = colorScheme.secondaryContainer;
+    model.onSecondaryContainer = colorScheme.onSecondaryContainer;
+    
+    model.tertiary = colorScheme.tertiary;
+    model.onTertiary = colorScheme.onTertiary;
+    model.tertiaryContainer = colorScheme.tertiaryContainer;
+    model.onTertiaryContainer = colorScheme.onTertiaryContainer;
+    
+    model.error = colorScheme.error;
+    model.onError = colorScheme.onError;
+    model.errorContainer = colorScheme.errorContainer;
+    model.onErrorContainer = colorScheme.onErrorContainer;
+    
+    model.background = colorScheme.background;
+    model.onBackground = colorScheme.onBackground;
+    
+    model.surface = colorScheme.surface;
+    model.onSurface = colorScheme.onSurface;
+    model.surfaceVariant = colorScheme.surfaceVariant;
+    model.onSurfaceVariant = colorScheme.onSurfaceVariant;
+    
+    model.outline = colorScheme.outline;
+    model.outlineVariant = colorScheme.outlineVariant;
+    
+    // Nouvelles propriétés pour Material 3
+    model.surfaceContainer = colorScheme.surface.withOpacity(0.9);
+    model.surfaceContainerLow = colorScheme.surface.withOpacity(0.95);
+    model.surfaceContainerHigh = colorScheme.surface.withOpacity(0.85);
+    model.surfaceContainerHighest = colorScheme.surface.withOpacity(0.8);
+    model.surfaceBright = colorScheme.brightness == Brightness.light ? Colors.white : Colors.grey.shade900;
+    model.surfaceDim = colorScheme.brightness == Brightness.light ? Colors.grey.shade50 : Colors.grey.shade800;
+    model.elevation = colorScheme.brightness == Brightness.light ? Colors.black12 : Colors.white12;
+  }
   
   // Garder la méthode _increaseContrast et _isDark
   Color _increaseContrast(Color foreground, Color background, double factor) {
@@ -373,7 +492,7 @@ class ThemeController extends ChangeNotifier {
       }
     }
     
-    // Mettre à jour la couleur dans le modèle approprié
+    // Mettre à jour la couleur dans le modèle
     switch (colorName) {
       case 'primary':
         modelToUpdate.primary = color;
