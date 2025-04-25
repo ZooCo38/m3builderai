@@ -7,6 +7,9 @@ class ComponentsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Obtenir le ThemeController
+    final themeController = Provider.of<ThemeController>(context);
+    
     // Utiliser directement le thème actuel sans surcharge
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;

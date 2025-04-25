@@ -266,6 +266,8 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
         lightHighModel: themeController.lightHighContrastModel,
         darkMediumModel: themeController.darkMediumContrastModel,
         darkHighModel: themeController.darkHighContrastModel,
+        // Nous n'avons plus besoin de ce paramètre car les modèles contiennent déjà les bonnes couleurs
+        // useOroneoTheme: themeController.useOroneoTheme,
       );
       
       if (content != null) {
