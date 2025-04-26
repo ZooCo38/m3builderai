@@ -1,7 +1,7 @@
 // Correction de la première ligne qui contient "flutter" par erreur
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Ajouter cet import
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -9,6 +9,8 @@ import '../../utils/platform_helper.dart';
 import '../../theme/theme_controller.dart';
 import '../../theme/theme_import.dart';
 import '../../theme/theme_export.dart';
+import 'color_picker.dart';
+import 'selected_component_section.dart';
 
 class ThemeEditorDrawer extends StatefulWidget {
   const ThemeEditorDrawer({super.key});
@@ -22,6 +24,7 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
   bool _isExporting = false;
   String _exportFormat = 'dart';
   
+  // Dans la méthode build de _ThemeEditorDrawerState
   @override
   Widget build(BuildContext context) {
     final themeController = Provider.of<ThemeController>(context);
@@ -31,10 +34,6 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
     final surfaceColor = isDark 
         ? Theme.of(context).colorScheme.surface  // Utiliser directement le thème
         : themeController.getCurrentColor('surface');
-    
-    print("ThemeEditorDrawer - Mode: ${isDark ? 'Dark' : 'Light'}");
-    print("ThemeEditorDrawer - Surface from Theme: ${Theme.of(context).colorScheme.surface}");
-    print("ThemeEditorDrawer - Surface from Controller: ${themeController.getCurrentColor('surface')}");
     
     return Container(
       width: 300,
@@ -49,72 +48,22 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
       child: Column(
         children: [
           // En-tête du drawer
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: themeController.getCurrentColor('primaryContainer'),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.palette,
-                  color: themeController.getCurrentColor('onPrimaryContainer'),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Theme Editor',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: themeController.getCurrentColor('onPrimaryContainer'),
-                  ),
-                ),
-                const Spacer(),
-                // Boutons d'import/export
-                IconButton(
-                  icon: _isUploading
-                      ? const CircularProgressIndicator()
-                      : const Icon(Icons.upload_file),
-                  onPressed: _isUploading ? null : _uploadTheme,
-                  tooltip: 'Import Theme',
-                ),
-                PopupMenuButton<String>(
-                  icon: _isExporting
-                      ? const CircularProgressIndicator()
-                      : const Icon(Icons.download),
-                  tooltip: 'Export Theme',
-                  onSelected: (format) {
-                    setState(() {
-                      _exportFormat = format;
-                    });
-                    _exportTheme(format);
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'dart',
-                      child: Text('Export as Dart'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'xml',
-                      child: Text('Export as XML'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'css',
-                      child: Text('Export as CSS'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'json',
-                      child: Text('Export as JSON'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          _buildHeader(themeController),
           
-          // Liste des couleurs du thème
+          // Contenu principal
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
+                // Afficher la section du composant sélectionné si un composant est sélectionné
+                if (themeController.selectedComponentInfo != null)
+                  SelectedComponentSection(
+                    themeController: themeController,
+                    showColorPicker: showColorPicker,
+                    showHexEditDialog: _showHexEditDialog, // Ajouter cette ligne
+                  ),
+                
+                // Liste des couleurs du thème
                 _buildColorSection(
                   'Primary',
                   [
@@ -216,7 +165,6 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
   }
 
   // Méthode pour gérer l'upload du thème
-  // Remplacer la méthode _uploadTheme
   Future<void> _uploadTheme() async {
     setState(() {
       _isUploading = true;
@@ -286,7 +234,7 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
           _isUploading = false;
         });
       }
-    }  // Ajout de l'accolade fermante manquante ici
+    }
   }
 
   // Méthode pour gérer l'export du thème
@@ -308,8 +256,6 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
         lightHighModel: themeController.lightHighContrastModel,
         darkMediumModel: themeController.darkMediumContrastModel,
         darkHighModel: themeController.darkHighContrastModel,
-        // Nous n'avons plus besoin de ce paramètre car les modèles contiennent déjà les bonnes couleurs
-        // useOroneoTheme: themeController.useOroneoTheme,
       );
       
       if (content != null) {
@@ -375,85 +321,39 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
     
     // Vérifier si cette couleur est utilisée par le composant sélectionné
     bool isHighlighted = false;
-    bool isHighlightedHover = false;
-    bool isHighlightedPressed = false;
     String? componentName;
-    
     if (themeController.selectedComponentInfo != null) {
-      // Vérifier pour l'état par défaut
       isHighlighted = themeController.selectedComponentInfo!.usedColorProperties.contains(colorName);
-      
-      // Vérifier pour l'état hover
-      isHighlightedHover = themeController.selectedComponentInfo!.hoverColorProperties.contains(colorName);
-      
-      // Vérifier pour l'état pressed
-      isHighlightedPressed = themeController.selectedComponentInfo!.pressedColorProperties.contains(colorName);
-      
       componentName = themeController.selectedComponentInfo!.componentName;
     }
     
-    // Déterminer si la couleur est utilisée dans n'importe quel état
-    bool isUsedInAnyState = isHighlighted || isHighlightedHover || isHighlightedPressed;
-    
     return Container(
       decoration: BoxDecoration(
-        border: isUsedInAnyState
+        border: isHighlighted
             ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
             : null,
         borderRadius: BorderRadius.circular(8),
-        color: isUsedInAnyState ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2) : null,
+        color: isHighlighted ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2) : null,
       ),
       margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: EdgeInsets.all(isUsedInAnyState ? 4 : 0),
+      padding: EdgeInsets.all(isHighlighted ? 4 : 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isUsedInAnyState && componentName != null)
+          if (isHighlighted && componentName != null)
             Padding(
               padding: const EdgeInsets.only(left: 8, top: 4, bottom: 2),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Utilisé par: $componentName',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  // Afficher les états dans lesquels cette couleur est utilisée
-                  Wrap(
-                    spacing: 4,
-                    children: [
-                      if (isHighlighted)
-                        Chip(
-                          label: const Text('État par défaut', style: TextStyle(fontSize: 10)),
-                          backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      if (isHighlightedHover)
-                        Chip(
-                          label: const Text('État hover', style: TextStyle(fontSize: 10)),
-                          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer.withOpacity(0.5),
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      if (isHighlightedPressed)
-                        Chip(
-                          label: const Text('État pressed', style: TextStyle(fontSize: 10)),
-                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5),
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                    ],
-                  ),
-                ],
+              child: Text(
+                'Utilisé par: $componentName',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 8),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
             title: Text(label),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,7 +404,7 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
                     ),
                   ),
                 ),
-                if (isUsedInAnyState)
+                if (isHighlighted)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
@@ -636,175 +536,97 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
       },
     );
   }
-}
 
-// Widget pour le sélecteur de couleur
-class ColorPicker extends StatefulWidget {
-  final Color pickerColor;
-  final ValueChanged<Color> onColorChanged;
-  final double pickerAreaHeightPercent;
-
-  const ColorPicker({
-    super.key,
-    required this.pickerColor,
-    required this.onColorChanged,
-    this.pickerAreaHeightPercent = 1.0,
-  });
-
-  @override
-  State<ColorPicker> createState() => _ColorPickerState();
-}
-
-class _ColorPickerState extends State<ColorPicker> {
-  late Color _currentColor;
-  late TextEditingController _hexController;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentColor = widget.pickerColor;
-    _hexController = TextEditingController(
-      text: '#${_currentColor.value.toRadixString(16).padLeft(8, '0').toUpperCase()}',
-    );
-  }
-
-  @override
-  void dispose() {
-    _hexController.dispose();
-    super.dispose();
-  }
-
-  void _updateColor(Color color) {
-    setState(() {
-      _currentColor = color;
-      _hexController.text = '#${_currentColor.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
-    });
-    widget.onColorChanged(color);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Affichage de la couleur sélectionnée
-        Container(
-          width: double.infinity,
-          height: 50,
-          decoration: BoxDecoration(
-            color: _currentColor,
-            borderRadius: BorderRadius.circular(8),
+  // Méthode pour construire l'en-tête du drawer
+  Widget _buildHeader(ThemeController themeController) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0), // Réduire le padding vertical
+      decoration: BoxDecoration(
+        color: themeController.getCurrentColor('primaryContainer'),
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
           ),
         ),
-        const SizedBox(height: 16),
-        
-        // Sliders pour les composantes RGB
-        _buildColorSlider(
-          label: 'R',
-          value: _currentColor.red.toDouble(),
-          color: Colors.red,
-          onChanged: (value) {
-            _updateColor(Color.fromARGB(
-              _currentColor.alpha,
-              value.toInt(),
-              _currentColor.green,
-              _currentColor.blue,
-            ));
-          },
-        ),
-        _buildColorSlider(
-          label: 'G',
-          value: _currentColor.green.toDouble(),
-          color: Colors.green,
-          onChanged: (value) {
-            _updateColor(Color.fromARGB(
-              _currentColor.alpha,
-              _currentColor.red,
-              value.toInt(),
-              _currentColor.blue,
-            ));
-          },
-        ),
-        _buildColorSlider(
-          label: 'B',
-          value: _currentColor.blue.toDouble(),
-          color: Colors.blue,
-          onChanged: (value) {
-            _updateColor(Color.fromARGB(
-              _currentColor.alpha,
-              _currentColor.red,
-              _currentColor.green,
-              value.toInt(),
-            ));
-          },
-        ),
-        _buildColorSlider(
-          label: 'A',
-          value: _currentColor.alpha.toDouble(),
-          color: Colors.grey,
-          onChanged: (value) {
-            _updateColor(Color.fromARGB(
-              value.toInt(),
-              _currentColor.red,
-              _currentColor.green,
-              _currentColor.blue,
-            ));
-          },
-        ),
-        
-        // Champ de texte pour la valeur hexadécimale
-        TextField(
-          controller: _hexController,
-          decoration: const InputDecoration(
-            labelText: 'Hex Color',
-            hintText: '#AARRGGBB',
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.max, // S'assurer que la Row prend toute la largeur disponible
+        children: [
+          Icon(
+            Icons.palette,
+            color: themeController.getCurrentColor('onPrimaryContainer'),
+            size: 20, // Réduire légèrement la taille de l'icône
           ),
-          onSubmitted: (value) {
-            try {
-              if (value.startsWith('#')) {
-                value = value.substring(1);
-              }
-              if (value.length == 6) {
-                value = 'FF$value'; // Ajouter l'opacité si elle n'est pas présente
-              }
-              final color = Color(int.parse(value, radix: 16));
-              _updateColor(color);
-            } catch (e) {
-              // Ignorer les erreurs de parsing
-            }
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildColorSlider({
-    required String label,
-    required double value,
-    required Color color,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 20,
-          child: Text(label),
-        ),
-        Expanded(
-          child: Slider(
-            value: value,
-            min: 0,
-            max: 255,
-            divisions: 255,
-            activeColor: color,
-            onChanged: onChanged,
+          const SizedBox(width: 8),
+          Expanded( // Utiliser Expanded pour éviter les débordements du texte
+            child: Text(
+              'Éditeur de thème',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: themeController.getCurrentColor('onPrimaryContainer'),
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis, // Ajouter une ellipse si le texte est trop long
+            ),
           ),
-        ),
-        SizedBox(
-          width: 40,
-          child: Text(value.toInt().toString()),
-        ),
-      ],
+          // Boutons d'import/export
+          IconButton(
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40), // Contraintes fixes pour l'IconButton
+            iconSize: 20, // Réduire la taille de l'icône
+            padding: EdgeInsets.zero, // Supprimer le padding
+            icon: _isUploading
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(
+                    Icons.upload_file,
+                    color: themeController.getCurrentColor('onPrimaryContainer'),
+                  ),
+            onPressed: _isUploading ? null : _uploadTheme,
+            tooltip: 'Importer un thème',
+          ),
+          PopupMenuButton<String>(
+            padding: EdgeInsets.zero, // Supprimer le padding
+            iconSize: 20, // Réduire la taille de l'icône
+            icon: _isExporting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(
+                    Icons.download,
+                    color: themeController.getCurrentColor('onPrimaryContainer'),
+                  ),
+            tooltip: 'Exporter le thème',
+            onSelected: (format) {
+              setState(() {
+                _exportFormat = format;
+              });
+              _exportTheme(format);
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'dart',
+                child: Text('Exporter en Dart'),
+              ),
+              const PopupMenuItem(
+                value: 'xml',
+                child: Text('Exporter en XML'),
+              ),
+              const PopupMenuItem(
+                value: 'css',
+                child: Text('Exporter en CSS'),
+              ),
+              const PopupMenuItem(
+                value: 'json',
+                child: Text('Exporter en JSON'),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
