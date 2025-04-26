@@ -14,12 +14,24 @@ class ComponentPreview extends StatelessWidget {
     final currentTheme = Theme.of(context);
     
     // Fonction pour créer un widget cliquable qui met à jour la sélection
-    Widget selectableComponent(Widget child, String name, List<String> colorProperties, {String? description}) {
+    Widget selectableComponent(
+      Widget child, 
+      String name, 
+      List<String> colorProperties, {
+      String? description,
+      List<String> hoverColorProperties = const [],
+      List<String> pressedColorProperties = const [],
+    }) {
       final isSelected = themeController.selectedComponentInfo?.componentName == name;
       
       return InkWell(
         onTap: () {
-          themeController.setSelectedComponent(name, colorProperties);
+          themeController.setSelectedComponent(
+            name, 
+            colorProperties,
+            hoverColorProperties: hoverColorProperties,
+            pressedColorProperties: pressedColorProperties,
+          );
         },
         child: Container(
           width: 200, // Largeur fixe pour une meilleure disposition
@@ -51,6 +63,9 @@ class ComponentPreview extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 8),
+              
+              // État par défaut
+              Text('État par défaut:', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
               Wrap(
                 spacing: 4,
                 runSpacing: 4,
@@ -64,6 +79,44 @@ class ComponentPreview extends StatelessWidget {
                   )
                 ).toList(),
               ),
+              
+              // État hover
+              if (hoverColorProperties.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text('État hover:', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: hoverColorProperties.map((prop) => 
+                    Chip(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      label: Text(prop, style: const TextStyle(fontSize: 10)),
+                      backgroundColor: currentTheme.colorScheme.tertiaryContainer.withOpacity(0.5),
+                      padding: EdgeInsets.zero,
+                    )
+                  ).toList(),
+                ),
+              ],
+              
+              // État pressed
+              if (pressedColorProperties.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text('État pressed:', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: pressedColorProperties.map((prop) => 
+                    Chip(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      label: Text(prop, style: const TextStyle(fontSize: 10)),
+                      backgroundColor: currentTheme.colorScheme.secondaryContainer.withOpacity(0.5),
+                      padding: EdgeInsets.zero,
+                    )
+                  ).toList(),
+                ),
+              ],
             ],
           ),
         ),
@@ -103,6 +156,8 @@ class ComponentPreview extends StatelessWidget {
                           'Elevated Button',
                           ['primary', 'surfaceContainer', 'surface', 'elevation'],
                           description: 'Utilise surfaceContainer pour le fond et primary pour le texte',
+                          hoverColorProperties: ['primary', 'surfaceContainer', 'shadow'],
+                          pressedColorProperties: ['primary', 'surfaceContainer', 'shadow', 'onSurface'],
                         ),
                         
                         selectableComponent(
@@ -113,6 +168,8 @@ class ComponentPreview extends StatelessWidget {
                           'Filled Button',
                           ['primary', 'onPrimary'],
                           description: 'Utilise primary pour le fond et onPrimary pour le texte',
+                          hoverColorProperties: ['primary', 'onPrimary', 'shadow'],
+                          pressedColorProperties: ['primary', 'onPrimary', 'shadow'],
                         ),
                         
                         selectableComponent(
@@ -123,6 +180,8 @@ class ComponentPreview extends StatelessWidget {
                           'Outlined Button',
                           ['primary', 'outline'],
                           description: 'Utilise primary pour le texte et outline pour la bordure',
+                          hoverColorProperties: ['primary', 'outline', 'surfaceContainer'],
+                          pressedColorProperties: ['primary', 'outline', 'surfaceContainer'],
                         ),
                         
                         selectableComponent(
@@ -133,6 +192,8 @@ class ComponentPreview extends StatelessWidget {
                           'Text Button',
                           ['primary'],
                           description: 'Utilise primary pour le texte',
+                          hoverColorProperties: ['primary', 'surfaceContainer'],
+                          pressedColorProperties: ['primary', 'surfaceContainer'],
                         ),
                         
                         // Cartes
@@ -149,6 +210,8 @@ class ComponentPreview extends StatelessWidget {
                           'Card',
                           ['surface', 'onSurface', 'surfaceVariant', 'onSurfaceVariant'],
                           description: 'Utilise surface pour le fond et onSurface pour le texte',
+                          hoverColorProperties: ['surface', 'onSurface', 'elevation'],
+                          pressedColorProperties: ['surface', 'onSurface', 'elevation'],
                         ),
                         
                         selectableComponent(
@@ -167,6 +230,8 @@ class ComponentPreview extends StatelessWidget {
                           'Colored Card',
                           ['primaryContainer', 'onPrimaryContainer'],
                           description: 'Utilise primaryContainer pour le fond et onPrimaryContainer pour le texte',
+                          hoverColorProperties: ['primaryContainer', 'onPrimaryContainer', 'elevation'],
+                          pressedColorProperties: ['primaryContainer', 'onPrimaryContainer', 'elevation'],
                         ),
                         
                         // Champs de texte
@@ -183,6 +248,8 @@ class ComponentPreview extends StatelessWidget {
                           'TextField',
                           ['primary', 'onSurface', 'surfaceVariant'],
                           description: 'Utilise primary pour la mise en évidence, onSurface pour le texte',
+                          hoverColorProperties: ['primary', 'onSurface', 'surfaceVariant'],
+                          pressedColorProperties: ['primary', 'onSurface', 'surfaceVariant', 'onSurfaceVariant'],
                         ),
                         
                         // Chips
@@ -201,6 +268,8 @@ class ComponentPreview extends StatelessWidget {
                           'Chips',
                           ['surfaceVariant', 'onSurfaceVariant', 'primary'],
                           description: 'Utilise surfaceVariant pour le fond et onSurfaceVariant pour le texte',
+                          hoverColorProperties: ['surfaceVariant', 'onSurfaceVariant', 'primary'],
+                          pressedColorProperties: ['surfaceVariant', 'onSurfaceVariant', 'primary', 'surface'],
                         ),
                       ],
                     ),

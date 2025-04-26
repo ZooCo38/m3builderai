@@ -38,8 +38,16 @@ class ComponentsView extends StatelessWidget {
               spacing: 16,
               runSpacing: 16,
               children: [
+                // Personnaliser l'ElevatedButton pour utiliser les couleurs du ThemeController
                 ElevatedButton(
                   onPressed: () {},
+                  // Utiliser un style personnalisé qui inclut la couleur d'élévation
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: themeController.getCurrentColor('surfaceContainer'),
+                    foregroundColor: themeController.getCurrentColor('primary'),
+                    elevation: 4, // Définir une élévation visible
+                    shadowColor: themeController.getCurrentColor('elevation'),
+                  ),
                   child: const Text('Elevated Button'),
                 ),
                 FilledButton(
