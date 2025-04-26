@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Ajouter ces propriétés au ThemeModel si elles n'existent pas déjà
 class ThemeModel {
   // Propriétés de couleur principales
   Color primary = Colors.blue;
@@ -49,6 +50,14 @@ class ThemeModel {
   Color elevation = Colors.black12;
   
   // Méthode pour créer un ColorScheme à partir du modèle
+  // Propriétés pour les nouvelles couleurs
+  Color shadow = Colors.black.withOpacity(0.3);
+  Color scrim = Colors.black.withOpacity(0.5);
+  Color inverseSurface = Colors.white;
+  Color onInverseSurface = Colors.black;
+  Color inversePrimary = Colors.blue;
+  
+  // Assurez-vous que la méthode toColorScheme inclut ces nouvelles propriétés
   ColorScheme toColorScheme(Brightness brightness) {
     return ColorScheme(
       brightness: brightness,
@@ -76,13 +85,12 @@ class ThemeModel {
       onSurfaceVariant: onSurfaceVariant,
       outline: outline,
       outlineVariant: outlineVariant,
-      shadow: Colors.black,
-      scrim: Colors.black54,
-      inverseSurface: brightness == Brightness.light ? Colors.black : Colors.white,
-      onInverseSurface: brightness == Brightness.light ? Colors.white : Colors.black,
-      inversePrimary: brightness == Brightness.light 
-          ? HSLColor.fromColor(primary).withLightness(0.8).toColor() 
-          : HSLColor.fromColor(primary).withLightness(0.3).toColor(),
+      // Remplacer ces valeurs par les propriétés de la classe
+      shadow: shadow,
+      scrim: scrim,
+      inverseSurface: inverseSurface,
+      onInverseSurface: onInverseSurface,
+      inversePrimary: inversePrimary,
     );
   }
 }

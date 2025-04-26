@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../components/drawer/theme_editor_drawer.dart';
 import '../components/preview/component_preview.dart';
 import '../theme/theme_controller.dart';
@@ -331,7 +332,19 @@ class _HomeViewState extends State<HomeView> {
     return Column(
       children: [
         IconButton(
-          icon: const Icon(Icons.style),
+          icon: SvgPicture.asset(
+            themeController.useOroneoTheme
+                ? 'assets/oroneo/Odark.svg'
+                : 'assets/oroneo/Olight.svg',
+            width: 24,
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              themeController.useOroneoTheme
+                  ? currentTheme.colorScheme.onPrimaryContainer
+                  : currentTheme.colorScheme.onSurfaceVariant,
+              BlendMode.srcIn
+            ),
+          ),
           tooltip: 'Basculer vers le thème Oroneo',
           onPressed: () {
             Provider.of<ThemeController>(context, listen: false).toggleOroneoTheme();
@@ -340,9 +353,6 @@ class _HomeViewState extends State<HomeView> {
             backgroundColor: themeController.useOroneoTheme
                 ? currentTheme.colorScheme.primaryContainer
                 : Colors.transparent,
-            foregroundColor: themeController.useOroneoTheme
-                ? currentTheme.colorScheme.onPrimaryContainer
-                : currentTheme.colorScheme.onSurfaceVariant,
           ),
         ),
         Text(

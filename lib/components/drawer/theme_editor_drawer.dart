@@ -163,6 +163,48 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
                   [
                     _buildColorTile('surface', 'Surface', themeController),
                     _buildColorTile('onSurface', 'On Surface', themeController),
+                    _buildColorTile('surfaceVariant', 'Surface Variant', themeController),
+                    _buildColorTile('onSurfaceVariant', 'On Surface Variant', themeController),
+                  ],
+                ),
+                // Nouvelles sections pour les couleurs supplémentaires de Material 3
+                _buildColorSection(
+                  'Surface Containers',
+                  [
+                    _buildColorTile('surfaceContainer', 'Surface Container', themeController),
+                    _buildColorTile('surfaceContainerLow', 'Surface Container Low', themeController),
+                    _buildColorTile('surfaceContainerHigh', 'Surface Container High', themeController),
+                    _buildColorTile('surfaceContainerHighest', 'Surface Container Highest', themeController),
+                    _buildColorTile('surfaceBright', 'Surface Bright', themeController),
+                    _buildColorTile('surfaceDim', 'Surface Dim', themeController),
+                  ],
+                ),
+                _buildColorSection(
+                  'Outline',
+                  [
+                    _buildColorTile('outline', 'Outline', themeController),
+                    _buildColorTile('outlineVariant', 'Outline Variant', themeController),
+                  ],
+                ),
+                _buildColorSection(
+                  'Elevation',
+                  [
+                    _buildColorTile('elevation', 'Elevation', themeController),
+                  ],
+                ),
+                _buildColorSection(
+                  'Shadow',
+                  [
+                    _buildColorTile('shadow', 'Shadow', themeController),
+                    _buildColorTile('scrim', 'Scrim', themeController),
+                  ],
+                ),
+                _buildColorSection(
+                  'Inverse',
+                  [
+                    _buildColorTile('inverseSurface', 'Inverse Surface', themeController),
+                    _buildColorTile('onInverseSurface', 'On Inverse Surface', themeController),
+                    _buildColorTile('inversePrimary', 'Inverse Primary', themeController),
                   ],
                 ),
               ],
@@ -266,6 +308,8 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
         lightHighModel: themeController.lightHighContrastModel,
         darkMediumModel: themeController.darkMediumContrastModel,
         darkHighModel: themeController.darkHighContrastModel,
+        // Nous n'avons plus besoin de ce paramètre car les modèles contiennent déjà les bonnes couleurs
+        // useOroneoTheme: themeController.useOroneoTheme,
       );
       
       if (content != null) {
@@ -331,35 +375,81 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
     
     // Vérifier si cette couleur est utilisée par le composant sélectionné
     bool isHighlighted = false;
+    bool isHighlightedHover = false;
+    bool isHighlightedPressed = false;
     String? componentName;
+    
     if (themeController.selectedComponentInfo != null) {
+      // Vérifier pour l'état par défaut
       isHighlighted = themeController.selectedComponentInfo!.usedColorProperties.contains(colorName);
+      
+      // Vérifier pour l'état hover
+      isHighlightedHover = themeController.selectedComponentInfo!.hoverColorProperties.contains(colorName);
+      
+      // Vérifier pour l'état pressed
+      isHighlightedPressed = themeController.selectedComponentInfo!.pressedColorProperties.contains(colorName);
+      
       componentName = themeController.selectedComponentInfo!.componentName;
     }
     
+    // Déterminer si la couleur est utilisée dans n'importe quel état
+    bool isUsedInAnyState = isHighlighted || isHighlightedHover || isHighlightedPressed;
+    
     return Container(
       decoration: BoxDecoration(
-        border: isHighlighted
+        border: isUsedInAnyState
             ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
             : null,
         borderRadius: BorderRadius.circular(8),
-        color: isHighlighted ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2) : null,
+        color: isUsedInAnyState ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2) : null,
       ),
       margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: EdgeInsets.all(isHighlighted ? 4 : 0),
+      padding: EdgeInsets.all(isUsedInAnyState ? 4 : 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isHighlighted && componentName != null)
+          if (isUsedInAnyState && componentName != null)
             Padding(
               padding: const EdgeInsets.only(left: 8, top: 4, bottom: 2),
-              child: Text(
-                'Utilisé par: $componentName',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Utilisé par: $componentName',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  // Afficher les états dans lesquels cette couleur est utilisée
+                  Wrap(
+                    spacing: 4,
+                    children: [
+                      if (isHighlighted)
+                        Chip(
+                          label: const Text('État par défaut', style: TextStyle(fontSize: 10)),
+                          backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      if (isHighlightedHover)
+                        Chip(
+                          label: const Text('État hover', style: TextStyle(fontSize: 10)),
+                          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer.withOpacity(0.5),
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      if (isHighlightedPressed)
+                        Chip(
+                          label: const Text('État pressed', style: TextStyle(fontSize: 10)),
+                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5),
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ListTile(
@@ -414,7 +504,7 @@ class _ThemeEditorDrawerState extends State<ThemeEditorDrawer> {
                     ),
                   ),
                 ),
-                if (isHighlighted)
+                if (isUsedInAnyState)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
@@ -718,97 +808,3 @@ class _ColorPickerState extends State<ColorPicker> {
     );
   }
 }
-
-// Supprimer toute cette section ci-dessous (la deuxième définition de ThemeEditorDrawer)
-// class ThemeEditorDrawer extends StatelessWidget {
-//   const ThemeEditorDrawer({super.key});
-//   
-//   @override
-//   Widget build(BuildContext context) {
-//     final themeController = Provider.of<ThemeController>(context);
-//     final selectedInfo = themeController.selectedComponentInfo;
-//     
-//     // Fonction pour vérifier si une propriété de couleur est utilisée par le composant sélectionné
-//     bool isColorHighlighted(String colorProperty) {
-//       if (selectedInfo == null) return false;
-//       return selectedInfo.usedColorProperties.contains(colorProperty);
-//     }
-//     
-//     // Fonction pour créer un sélecteur de couleur avec surbrillance conditionnelle
-//     Widget colorSelector(String label, Color color, Function(Color) onColorChanged, String colorProperty) {
-//       return Container(
-//         decoration: BoxDecoration(
-//           border: isColorHighlighted(colorProperty)
-//               ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
-//               : null,
-//           borderRadius: BorderRadius.circular(8),
-//         ),
-//         margin: const EdgeInsets.symmetric(vertical: 4),
-//         padding: const EdgeInsets.all(isColorHighlighted(colorProperty) ? 4 : 0),
-//         child: Row(
-//           children: [
-//             Text(label),
-//             const Spacer(),
-//             GestureDetector(
-//               onTap: () {
-//                 // Ouvrir le sélecteur de couleur (implémentation simplifiée)
-//                 showDialog(
-//                   context: context,
-//                   builder: (context) => AlertDialog(
-//                     title: Text('Choisir $label'),
-//                     content: SingleChildScrollView(
-//                       child: ColorPicker(
-//                         pickerColor: color,
-//                         onColorChanged: onColorChanged,
-//                       ),
-//                     ),
-//                     actions: [
-//                       TextButton(
-//                         onPressed: () => Navigator.of(context).pop(),
-//                         child: const Text('OK'),
-//                       ),
-//                     ],
-//                   ),
-//                 );
-//               },
-//               child: Container(
-//                 width: 40,
-//                 height: 40,
-//                 decoration: BoxDecoration(
-//                   color: color,
-//                   border: Border.all(color: Colors.grey),
-//                   borderRadius: BorderRadius.circular(4),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       );
-//     }
-//     
-//     // Utilisez cette fonction pour tous vos sélecteurs de couleur
-//     return SingleChildScrollView(
-//       child: Padding(
-//         padding: const EdgeInsets.all(16),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text('Theme Editor', style: Theme.of(context).textTheme.titleLarge),
-//             const SizedBox(height: 16),
-//             
-//             // Exemple pour primary
-//             colorSelector(
-//               'Primary',
-//               themeController.getCurrentColor('primary'),
-//               (color) => themeController.updateThemeColor('primary', color),
-//               'primary',
-//             ),
-//             
-//             // Ajoutez d'autres sélecteurs de couleur de la même manière
-//             // ...
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

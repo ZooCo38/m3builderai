@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/theme_model.dart';
 import '../utils/platform_helper.dart';
+import '../themes/oroneo_theme.dart'; // Ajout de l'import pour OroneoTheme
 
 // Supprimer cette ligne car elle est déjà importée ci-dessus
 // import 'dart:html' as html;
@@ -18,7 +19,27 @@ class ThemeExporter {
     ThemeModel? lightHighModel,
     ThemeModel? darkMediumModel,
     ThemeModel? darkHighModel,
+    // Supprimer ce paramètre
+    // bool useOroneoTheme = false,
   }) async {
+    // Supprimer cette section
+    // if (useOroneoTheme) {
+    //   // Convertir le thème Oroneo en ThemeModel
+    //   ThemeModel oroneoLightModel = _themeDataToModel(OroneoTheme.lightTheme);
+    //   ThemeModel oroneoDarkModel = _themeDataToModel(OroneoTheme.darkTheme);
+    //   
+    //   // Remplacer les modèles par ceux d'Oroneo
+    //   themeModel = oroneoLightModel;
+    //   darkThemeModel = oroneoDarkModel;
+    //   
+    //   // Pour les contrastes, on pourrait dériver des versions à contraste élevé
+    //   // mais pour l'instant, utilisons les mêmes modèles
+    //   lightMediumModel = oroneoLightModel;
+    //   lightHighModel = oroneoLightModel;
+    //   darkMediumModel = oroneoDarkModel;
+    //   darkHighModel = oroneoDarkModel;
+    // }
+    
     // Créer un Map contenant tous les modèles de thème
     final Map<String, dynamic> themeData = {
       'lightStandard': _themeModelToMap(themeModel),
@@ -42,6 +63,8 @@ class ThemeExporter {
           lightHighModel: lightHighModel,
           darkMediumModel: darkMediumModel,
           darkHighModel: darkHighModel,
+          // Supprimer cette ligne
+          // useOroneoTheme: useOroneoTheme,
         );
       case 'xml':
         return _exportToXml(themeModel);
@@ -50,6 +73,54 @@ class ThemeExporter {
       default:
         return null;
     }
+  }
+
+  // Nouvelle méthode pour convertir ThemeData en ThemeModel
+  static ThemeModel _themeDataToModel(ThemeData themeData) {
+    final colorScheme = themeData.colorScheme;
+    final model = ThemeModel();
+    
+    model.primary = colorScheme.primary;
+    model.onPrimary = colorScheme.onPrimary;
+    model.primaryContainer = colorScheme.primaryContainer;
+    model.onPrimaryContainer = colorScheme.onPrimaryContainer;
+    
+    model.secondary = colorScheme.secondary;
+    model.onSecondary = colorScheme.onSecondary;
+    model.secondaryContainer = colorScheme.secondaryContainer;
+    model.onSecondaryContainer = colorScheme.onSecondaryContainer;
+    
+    model.tertiary = colorScheme.tertiary;
+    model.onTertiary = colorScheme.onTertiary;
+    model.tertiaryContainer = colorScheme.tertiaryContainer;
+    model.onTertiaryContainer = colorScheme.onTertiaryContainer;
+    
+    model.error = colorScheme.error;
+    model.onError = colorScheme.onError;
+    model.errorContainer = colorScheme.errorContainer;
+    model.onErrorContainer = colorScheme.onErrorContainer;
+    
+    model.background = colorScheme.background;
+    model.onBackground = colorScheme.onBackground;
+    
+    model.surface = colorScheme.surface;
+    model.onSurface = colorScheme.onSurface;
+    model.surfaceVariant = colorScheme.surfaceVariant;
+    model.onSurfaceVariant = colorScheme.onSurfaceVariant;
+    
+    model.outline = colorScheme.outline;
+    model.outlineVariant = colorScheme.outlineVariant;
+    
+    // Nouvelles propriétés pour Material 3
+    model.surfaceContainer = colorScheme.surface.withOpacity(0.9);
+    model.surfaceContainerLow = colorScheme.surface.withOpacity(0.95);
+    model.surfaceContainerHigh = colorScheme.surface.withOpacity(0.85);
+    model.surfaceContainerHighest = colorScheme.surface.withOpacity(0.8);
+    model.surfaceBright = colorScheme.brightness == Brightness.light ? Colors.white : Colors.grey.shade900;
+    model.surfaceDim = colorScheme.brightness == Brightness.light ? Colors.grey.shade50 : Colors.grey.shade800;
+    model.elevation = colorScheme.brightness == Brightness.light ? Colors.black12 : Colors.white12;
+    
+    return model;
   }
 
   // Méthode helper pour convertir un ThemeModel en Map
@@ -113,11 +184,20 @@ class ThemeExporter {
     ThemeModel? lightHighModel,
     ThemeModel? darkMediumModel,
     ThemeModel? darkHighModel,
+    // Supprimer ce paramètre
+    // bool useOroneoTheme = false,
   }) {
     final buffer = StringBuffer();
     
     buffer.writeln('import \'package:flutter/material.dart\';');
     buffer.writeln();
+    
+    // Supprimer cette condition
+    // if (useOroneoTheme) {
+    //   buffer.writeln('// Thème Oroneo exporté');
+    //   buffer.writeln('// Ce thème est basé sur les couleurs de la charte graphique Oroneo');
+    //   buffer.writeln();
+    // }
     
     // Fonction principale pour obtenir le thème
     buffer.writeln('ThemeData getTheme({ThemeMode themeMode = ThemeMode.light, ContrastLevel contrastLevel = ContrastLevel.normal}) {');

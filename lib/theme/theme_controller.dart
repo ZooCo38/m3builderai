@@ -15,8 +15,15 @@ enum ContrastLevel {
 class ComponentInfo {
   final String componentName;
   final List<String> usedColorProperties;
+  final List<String> hoverColorProperties;
+  final List<String> pressedColorProperties;
   
-  ComponentInfo(this.componentName, this.usedColorProperties);
+  ComponentInfo(
+    this.componentName, 
+    this.usedColorProperties, {
+    this.hoverColorProperties = const [],
+    this.pressedColorProperties = const [],
+  });
 }
 
 class ThemeController extends ChangeNotifier {
@@ -434,8 +441,18 @@ class ThemeController extends ChangeNotifier {
     return luminance < 0.5;
   }
   // Définir le composant sélectionné
-  void setSelectedComponent(String componentName, List<String> colorProperties) {
-    _selectedComponentInfo = ComponentInfo(componentName, colorProperties);
+  void setSelectedComponent(
+    String name, 
+    List<String> colorProperties, {
+    List<String> hoverColorProperties = const [],
+    List<String> pressedColorProperties = const [],
+  }) {
+    _selectedComponentInfo = ComponentInfo(
+      name, 
+      colorProperties,
+      hoverColorProperties: hoverColorProperties,
+      pressedColorProperties: pressedColorProperties,
+    );
     notifyListeners();
   }
   
@@ -566,7 +583,7 @@ class ThemeController extends ChangeNotifier {
       case 'outlineVariant':
         modelToUpdate.outlineVariant = color;
         break;
-      // Nouveaux cas
+      // Ajouter les cas pour les nouvelles couleurs
       case 'surfaceContainer':
         modelToUpdate.surfaceContainer = color;
         break;
@@ -588,80 +605,109 @@ class ThemeController extends ChangeNotifier {
       case 'elevation':
         modelToUpdate.elevation = color;
         break;
+      case 'shadow':
+        modelToUpdate.shadow = color;
+        break;
+      case 'scrim':
+        modelToUpdate.scrim = color;
+        break;
+      case 'inverseSurface':
+        modelToUpdate.inverseSurface = color;
+        break;
+      case 'onInverseSurface':
+        modelToUpdate.onInverseSurface = color;
+        break;
+      case 'inversePrimary':
+        modelToUpdate.inversePrimary = color;
+        break;
     }
     
-    // Notifier les écouteurs du changement
+    // Notifier les écouteurs pour mettre à jour l'interface
     notifyListeners();
   }
   
-  // Obtenir la couleur actuelle en fonction du mode et du niveau de contraste
+  // Obtenir une couleur du thème actuel
   Color getCurrentColor(String colorName) {
-    bool isDark = _themeMode == ThemeMode.dark;
-    ThemeModel modelToUse;
+    // Obtenir le modèle approprié en fonction du mode et du niveau de contraste
+    final model = _getModelForCurrentSettings();
     
-    // Sélectionner le modèle approprié en fonction du mode et du niveau de contraste
-    if (isDark) {
-      switch (_contrastLevel) {
-        case ContrastLevel.normal:
-          modelToUse = _darkThemeModel;
-          break;
-        case ContrastLevel.medium:
-          modelToUse = _darkMediumContrastModel;
-          break;
-        case ContrastLevel.high:
-          modelToUse = _darkHighContrastModel;
-          break;
-      }
-    } else {
-      switch (_contrastLevel) {
-        case ContrastLevel.normal:
-          modelToUse = _currentThemeModel;
-          break;
-        case ContrastLevel.medium:
-          modelToUse = _lightMediumContrastModel;
-          break;
-        case ContrastLevel.high:
-          modelToUse = _lightHighContrastModel;
-          break;
-      }
-    }
-    
-    // Retourner la couleur appropriée du modèle sélectionné
+    // Retourner la couleur demandée
     switch (colorName) {
-      case 'primary': return modelToUse.primary;
-      case 'onPrimary': return modelToUse.onPrimary;
-      case 'primaryContainer': return modelToUse.primaryContainer;
-      case 'onPrimaryContainer': return modelToUse.onPrimaryContainer;
-      case 'secondary': return modelToUse.secondary;
-      case 'onSecondary': return modelToUse.onSecondary;
-      case 'secondaryContainer': return modelToUse.secondaryContainer;
-      case 'onSecondaryContainer': return modelToUse.onSecondaryContainer;
-      case 'tertiary': return modelToUse.tertiary;
-      case 'onTertiary': return modelToUse.onTertiary;
-      case 'tertiaryContainer': return modelToUse.tertiaryContainer;
-      case 'onTertiaryContainer': return modelToUse.onTertiaryContainer;
-      case 'error': return modelToUse.error;
-      case 'onError': return modelToUse.onError;
-      case 'errorContainer': return modelToUse.errorContainer;
-      case 'onErrorContainer': return modelToUse.onErrorContainer;
-      case 'background': return modelToUse.background;
-      case 'onBackground': return modelToUse.onBackground;
-      case 'surface': return modelToUse.surface;
-      case 'onSurface': return modelToUse.onSurface;
-      case 'surfaceVariant': return modelToUse.surfaceVariant;
-      case 'onSurfaceVariant': return modelToUse.onSurfaceVariant;
-      case 'outline': return modelToUse.outline;
-      case 'outlineVariant': return modelToUse.outlineVariant;
-      // Nouveaux cas
-      case 'surfaceContainer': return modelToUse.surfaceContainer;
-      case 'surfaceContainerLow': return modelToUse.surfaceContainerLow;
-      case 'surfaceContainerHigh': return modelToUse.surfaceContainerHigh;
-      case 'surfaceContainerHighest': return modelToUse.surfaceContainerHighest;
-      case 'surfaceBright': return modelToUse.surfaceBright;
-      case 'surfaceDim': return modelToUse.surfaceDim;
-      case 'elevation': return modelToUse.elevation;
-      
-      default: return isDark ? Colors.black : Colors.white;
+      case 'primary':
+        return model.primary;
+      case 'onPrimary':
+        return model.onPrimary;
+      case 'primaryContainer':
+        return model.primaryContainer;
+      case 'onPrimaryContainer':
+        return model.onPrimaryContainer;
+      case 'secondary':
+        return model.secondary;
+      case 'onSecondary':
+        return model.onSecondary;
+      case 'secondaryContainer':
+        return model.secondaryContainer;
+      case 'onSecondaryContainer':
+        return model.onSecondaryContainer;
+      case 'tertiary':
+        return model.tertiary;
+      case 'onTertiary':
+        return model.onTertiary;
+      case 'tertiaryContainer':
+        return model.tertiaryContainer;
+      case 'onTertiaryContainer':
+        return model.onTertiaryContainer;
+      case 'error':
+        return model.error;
+      case 'onError':
+        return model.onError;
+      case 'errorContainer':
+        return model.errorContainer;
+      case 'onErrorContainer':
+        return model.onErrorContainer;
+      case 'background':
+        return model.background;
+      case 'onBackground':
+        return model.onBackground;
+      case 'surface':
+        return model.surface;
+      case 'onSurface':
+        return model.onSurface;
+      case 'surfaceVariant':
+        return model.surfaceVariant;
+      case 'onSurfaceVariant':
+        return model.onSurfaceVariant;
+      case 'outline':
+        return model.outline;
+      case 'outlineVariant':
+        return model.outlineVariant;
+      // Ajouter les cas pour les nouvelles couleurs
+      case 'surfaceContainer':
+        return model.surfaceContainer;
+      case 'surfaceContainerLow':
+        return model.surfaceContainerLow;
+      case 'surfaceContainerHigh':
+        return model.surfaceContainerHigh;
+      case 'surfaceContainerHighest':
+        return model.surfaceContainerHighest;
+      case 'surfaceBright':
+        return model.surfaceBright;
+      case 'surfaceDim':
+        return model.surfaceDim;
+      case 'elevation':
+        return model.elevation;
+      case 'shadow':
+        return model.shadow ?? Colors.black.withOpacity(0.3);
+      case 'scrim':
+        return model.scrim ?? Colors.black.withOpacity(0.5);
+      case 'inverseSurface':
+        return model.inverseSurface ?? (_themeMode == ThemeMode.dark ? Colors.white : Colors.black);
+      case 'onInverseSurface':
+        return model.onInverseSurface ?? (_themeMode == ThemeMode.dark ? Colors.black : Colors.white);
+      case 'inversePrimary':
+        return model.inversePrimary ?? model.primary.withOpacity(0.8);
+      default:
+        return Colors.transparent;
     }
   }
 }
