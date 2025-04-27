@@ -15,13 +15,14 @@ class OroneoLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Correction des chemins pour pointer vers le dossier logos
     final String assetName = useFullLogo
-        ? (isLight ? 'assets/oroneo/Logolight.svg' : 'assets/oroneo/Logodark.svg')
+        ? (isLight ? 'assets/oroneo/logos/Logolight.svg' : 'assets/oroneo/logos/Logodark.svg')
         : (isLight
-            ? 'assets/oroneo/Olight.svg'
+            ? 'assets/oroneo/logos/Olight.svg'
             : Theme.of(context).brightness == Brightness.dark
-                ? 'assets/oroneo/Odark.svg'
-                : 'assets/oroneo/Ogrey.svg');
+                ? 'assets/oroneo/logos/Odark.svg'
+                : 'assets/oroneo/logos/Ogrey.svg');
 
     return SvgPicture.asset(
       assetName,
