@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_controller.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:io' as io;
 
 class WebPreview extends StatefulWidget {
   const WebPreview({Key? key}) : super(key: key);
@@ -10,8 +12,38 @@ class WebPreview extends StatefulWidget {
 }
 
 class _WebPreviewState extends State<WebPreview> {
-  String _currentUrl = 'material.io';
+  String _currentUrl = 'oroneo.fr';
   bool _isLoading = false;
+  String _assetStatus = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAssets();
+  }
+
+  // Fonction pour vérifier l'existence des assets
+  Future<void> _checkAssets() async {
+    try {
+      // Utiliser io.Platform.pathSeparator pour la compatibilité cross-platform
+      final directory = io.Directory('${io.Directory.current.path}${io.Platform.pathSeparator}assets${io.Platform.pathSeparator}oroneo${io.Platform.pathSeparator}logos');
+      
+      if (await directory.exists()) {
+        final files = await directory.list().toList();
+        setState(() {
+          _assetStatus = 'Dossier trouvé. Fichiers: ${files.map((f) => f.path.split(io.Platform.pathSeparator).last).join(', ')}';
+        });
+      } else {
+        setState(() {
+          _assetStatus = 'Dossier non trouvé: ${directory.path}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _assetStatus = 'Erreur: $e';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,127 +149,94 @@ class _WebPreviewState extends State<WebPreview> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // En-tête Material Design
+                        // Indicateur de statut des assets (à supprimer après débogage)
+                        if (_assetStatus.isNotEmpty)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(8),
+                            color: Colors.amber,
+                            child: Text(
+                              'Statut des assets: $_assetStatus',
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        
+                        // Header / Menu
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(24),
-                          color: currentTheme.colorScheme.primary,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          color: currentTheme.colorScheme.surface,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
+                              // Logo et liens de navigation
                               Row(
                                 children: [
-                                  CircleAvatar(
-                                    backgroundColor: currentTheme.colorScheme.onPrimary,
-                                    radius: 20,
-                                    child: Icon(
-                                      Icons.design_services,
-                                      color: currentTheme.colorScheme.primary,
-                                    ),
+                                  // Logo Oroneo
+                                  Row(
+                                    children: [
+                                      // Utilisation du logo SVG
+                                      SizedBox(
+                                        width: 32,
+                                        height: 32,
+                                        child: SvgPicture.asset(
+                                          'assets/oroneo/logos/Logodark.svg',
+                                          semanticsLabel: 'Logo Oroneo',
+                                          // Afficher un placeholder en cas d'erreur
+                                          placeholderBuilder: (BuildContext context) => CircleAvatar(
+                                            backgroundColor: currentTheme.colorScheme.primary,
+                                            radius: 16,
+                                            child: Text(
+                                              'O',
+                                              style: TextStyle(
+                                                color: currentTheme.colorScheme.onPrimary,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'ORONEO',
+                                        style: TextStyle(
+                                          color: currentTheme.colorScheme.onSurface,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 32),
+                                  // Liens de navigation
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: Text('Application'),
                                   ),
                                   const SizedBox(width: 16),
-                                  Text(
-                                    'Material 3 Builder',
-                                    style: TextStyle(
-                                      color: currentTheme.colorScheme.onPrimary,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: Text('Qui sommes-nous'),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 24),
-                              Text(
-                                'Explorez les composants Material 3',
-                                style: TextStyle(
-                                  color: currentTheme.colorScheme.onPrimary,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Découvrez comment utiliser les composants Material 3 dans vos applications Flutter.',
-                                style: TextStyle(
-                                  color: currentTheme.colorScheme.onPrimary.withOpacity(0.8),
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: currentTheme.colorScheme.onPrimary,
-                                  foregroundColor: currentTheme.colorScheme.primary,
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                ),
-                                child: const Text('Commencer'),
-                              ),
-                            ],
-                          ),
-                        ),
-                        
-                        // Section des composants
-                        Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Composants',
-                                style: TextStyle(
-                                  color: currentTheme.colorScheme.onBackground,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              
-                              // Grille de composants
-                              // Dans la méthode build, remplacer la GridView.count par :
-                              GridView.count(
-                                crossAxisCount: 3,
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                mainAxisSpacing: 24,
-                                crossAxisSpacing: 24,
-                                childAspectRatio: 0.8, // Ajuster le ratio pour donner plus de hauteur
+                              // Boutons de connexion/inscription
+                              Row(
                                 children: [
-                                  _buildComponentCard(
-                                    context,
-                                    'Boutons',
-                                    Icons.touch_app,
-                                    currentTheme,
+                                  OutlinedButton(
+                                    onPressed: () {},
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    ),
+                                    child: const Text('Se connecter'),
                                   ),
-                                  _buildComponentCard(
-                                    context,
-                                    'Cartes',
-                                    Icons.crop_square,
-                                    currentTheme,
-                                  ),
-                                  _buildComponentCard(
-                                    context,
-                                    'Champs de texte',
-                                    Icons.text_fields,
-                                    currentTheme,
-                                  ),
-                                  _buildComponentCard(
-                                    context,
-                                    'Dialogues',
-                                    Icons.chat_bubble_outline,
-                                    currentTheme,
-                                  ),
-                                  _buildComponentCard(
-                                    context,
-                                    'Navigation',
-                                    Icons.menu,
-                                    currentTheme,
-                                  ),
-                                  _buildComponentCard(
-                                    context,
-                                    'Sélection',
-                                    Icons.check_circle_outline,
-                                    currentTheme,
+                                  const SizedBox(width: 16),
+                                  FilledButton(
+                                    onPressed: () {},
+                                    style: FilledButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    ),
+                                    child: const Text('S\'inscrire'),
                                   ),
                                 ],
                               ),
@@ -245,67 +244,405 @@ class _WebPreviewState extends State<WebPreview> {
                           ),
                         ),
                         
-                        // Section des thèmes
+                        // Section Hero
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(24),
-                          color: currentTheme.colorScheme.surfaceVariant,
+                          height: 600,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                currentTheme.colorScheme.primary,
+                                currentTheme.colorScheme.tertiary,
+                              ],
+                            ),
+                          ),
+                          child: Stack(
+                            children: [
+                              // Contenu texte
+                              Positioned(
+                                left: 80,
+                                top: 120,
+                                child: SizedBox(
+                                  width: 500,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Votre Assistant IA personnel pour vos finances',
+                                        style: TextStyle(
+                                          color: currentTheme.colorScheme.onPrimary,
+                                          fontSize: 48,
+                                          fontWeight: FontWeight.bold,
+                                          height: 1.2,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
+                                      Text(
+                                        'Oroneo vous accompagne dans la gestion de vos finances, l\'optimisation de votre épargne et la préparation de votre retraite grâce à l\'intelligence artificielle.',
+                                        style: TextStyle(
+                                          color: currentTheme.colorScheme.onPrimary.withOpacity(0.9),
+                                          fontSize: 18,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 40),
+                                      FilledButton.icon(
+                                        onPressed: () {},
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: currentTheme.colorScheme.onPrimary,
+                                          foregroundColor: currentTheme.colorScheme.primary,
+                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                        ),
+                                        icon: const Icon(Icons.download),
+                                        label: const Text('Télécharger l\'application'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // Image de smartphone (à remplacer par une vraie image)
+                              Positioned(
+                                right: 80,
+                                bottom: 0,
+                                child: Container(
+                                  width: 300,
+                                  height: 500,
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.colorScheme.surfaceVariant.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Image de l\'application',
+                                      style: TextStyle(
+                                        color: currentTheme.colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Lame 1: Partenaires
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 80),
+                          color: currentTheme.colorScheme.surface,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Thèmes',
+                                'Nos partenaires nous font confiance',
                                 style: TextStyle(
-                                  color: currentTheme.colorScheme.onSurfaceVariant,
+                                  color: currentTheme.colorScheme.onSurface,
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                 ),
+                                textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Personnalisez l\'apparence de votre application avec Material 3.',
-                                style: TextStyle(
-                                  color: currentTheme.colorScheme.onSurfaceVariant,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              
-                              // Palette de couleurs
+                              const SizedBox(height: 48),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _buildColorCircle(currentTheme.colorScheme.primary, 'Primary'),
-                                  _buildColorCircle(currentTheme.colorScheme.secondary, 'Secondary'),
-                                  _buildColorCircle(currentTheme.colorScheme.tertiary, 'Tertiary'),
-                                  _buildColorCircle(currentTheme.colorScheme.error, 'Error'),
-                                  _buildColorCircle(currentTheme.colorScheme.surface, 'Surface'),
+                                  _buildPartnerLogo('SwissLife', currentTheme),
+                                  _buildPartnerLogo('Generali', currentTheme),
+                                  _buildPartnerLogo('Abeille', currentTheme),
+                                  _buildPartnerLogo('BNP', currentTheme),
                                 ],
                               ),
                             ],
                           ),
                         ),
                         
-                        // Pied de page
+                        // Lame 2: Simulation retraite
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 80),
+                          color: currentTheme.colorScheme.surfaceVariant,
+                          child: Row(
+                            children: [
+                              // Image/Illustration
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  height: 300,
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.colorScheme.primary.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.bar_chart,
+                                      size: 100,
+                                      color: currentTheme.colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 80),
+                              // Texte
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Votre simulation retraite personnalisée !',
+                                      style: TextStyle(
+                                        color: currentTheme.colorScheme.onSurfaceVariant,
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      'Obtenez une projection précise de votre future retraite en quelques minutes. Notre IA analyse votre situation et vous propose des solutions adaptées.',
+                                      style: TextStyle(
+                                        color: currentTheme.colorScheme.onSurfaceVariant,
+                                        fontSize: 16,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 32),
+                                    FilledButton.icon(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.download),
+                                      label: const Text('Télécharger l\'application'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Lame 3: Épargne et défiscalisation
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 80),
+                          color: currentTheme.colorScheme.surface,
+                          child: Row(
+                            children: [
+                              // Texte
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'J\'épargne et je défiscalise avec ORONEO',
+                                      style: TextStyle(
+                                        color: currentTheme.colorScheme.onSurface,
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      'Optimisez votre épargne et réduisez vos impôts grâce à nos solutions personnalisées. Notre assistant IA vous guide vers les meilleurs placements.',
+                                      style: TextStyle(
+                                        color: currentTheme.colorScheme.onSurface,
+                                        fontSize: 16,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 32),
+                                    FilledButton.icon(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.download),
+                                      label: const Text('Télécharger l\'application'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 80),
+                              // Image/Illustration
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  height: 300,
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.colorScheme.secondary.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.savings,
+                                      size: 100,
+                                      color: currentTheme.colorScheme.secondary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Lame 4: Protection famille
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 80),
+                          color: currentTheme.colorScheme.surfaceVariant,
+                          child: Row(
+                            children: [
+                              // Image/Illustration
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  height: 300,
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.colorScheme.tertiary.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.family_restroom,
+                                      size: 100,
+                                      color: currentTheme.colorScheme.tertiary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 80),
+                              // Texte
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Je protège ma famille',
+                                      style: TextStyle(
+                                        color: currentTheme.colorScheme.onSurfaceVariant,
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      'Assurez l\'avenir de vos proches avec nos solutions de protection. Assurance vie, prévoyance, transmission de patrimoine : nous vous accompagnons dans toutes vos démarches.',
+                                      style: TextStyle(
+                                        color: currentTheme.colorScheme.onSurfaceVariant,
+                                        fontSize: 16,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 32),
+                                    FilledButton.icon(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.download),
+                                      label: const Text('Télécharger l\'application'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Footer
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 80),
                           color: currentTheme.colorScheme.surfaceContainerHighest,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                '© 2023 Material 3 Builder',
-                                style: TextStyle(
-                                  color: currentTheme.colorScheme.onSurfaceVariant,
-                                  fontSize: 14,
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Liens texte
+                                  Row(
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: Text(
+                                          'Qui sommes-nous',
+                                          style: TextStyle(
+                                            color: currentTheme.colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 24),
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: Text(
+                                          'Nos produits',
+                                          style: TextStyle(
+                                            color: currentTheme.colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 24),
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: Text(
+                                          'Contact',
+                                          style: TextStyle(
+                                            color: currentTheme.colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 24),
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: Text(
+                                          'CGV',
+                                          style: TextStyle(
+                                            color: currentTheme.colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 24),
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: Text(
+                                          'Infos légales',
+                                          style: TextStyle(
+                                            color: currentTheme.colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  // Logo
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: currentTheme.colorScheme.primary,
+                                        radius: 16,
+                                        child: Text(
+                                          'O',
+                                          style: TextStyle(
+                                            color: currentTheme.colorScheme.onPrimary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'ORONEO',
+                                        style: TextStyle(
+                                          color: currentTheme.colorScheme.onSurfaceVariant,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 32),
                               Text(
-                                'Créé avec Flutter et Material 3',
+                                '© 2023 Oroneo. Tous droits réservés.',
                                 style: TextStyle(
-                                  color: currentTheme.colorScheme.onSurfaceVariant,
+                                  color: currentTheme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                                   fontSize: 14,
                                 ),
                               ),
@@ -321,340 +658,28 @@ class _WebPreviewState extends State<WebPreview> {
     );
   }
   
-  Widget _buildComponentCard(BuildContext context, String title, IconData icon, ThemeData theme) {
-    return Card(
-      elevation: 0,
-      color: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: theme.colorScheme.outline.withOpacity(0.2),
-        ),
+  // Méthode pour construire les logos des partenaires
+  Widget _buildPartnerLogo(String name, ThemeData theme) {
+    return Container(
+      width: 150,
+      height: 80,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Titre du composant
-              Text(
-                title,
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              
-              // Exemples de composants
-              Expanded(
-                child: _buildComponentExamples(title, theme),
-              ),
-            ],
+      child: Center(
+        child: Text(
+          name,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
     );
   }
   
-  // Nouvelle méthode pour construire les exemples de composants
-  Widget _buildComponentExamples(String componentType, ThemeData theme) {
-    switch (componentType) {
-      case 'Boutons':
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Elevated'),
-            ),
-            FilledButton(
-              onPressed: () {},
-              child: const Text('Filled'),
-            ),
-            OutlinedButton(
-              onPressed: () {},
-              child: const Text('Outlined'),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text('Text'),
-            ),
-          ],
-        );
-        
-      case 'Cartes':
-        return Center(
-          child: Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Carte exemple',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Contenu de la carte',
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-        
-      case 'Champs de texte':
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Standard',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Filled',
-                filled: true,
-                fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ],
-        );
-        
-      case 'Dialogues':
-        return Center(
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Titre du dialogue',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Contenu du dialogue avec des informations',
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('Annuler'),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-        
-      case 'Navigation':
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Barre de navigation
-            Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Icon(Icons.home, color: theme.colorScheme.primary),
-                  Icon(Icons.search, color: theme.colorScheme.onSurfaceVariant),
-                  Icon(Icons.favorite, color: theme.colorScheme.onSurfaceVariant),
-                  Icon(Icons.person, color: theme.colorScheme.onSurfaceVariant),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Drawer miniature
-            Container(
-              height: 60,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                border: Border.all(color: theme.colorScheme.outline.withOpacity(0.2)),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 20,
-                    color: theme.colorScheme.surfaceVariant,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 2,
-                          width: 12,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          height: 2,
-                          width: 12,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          height: 2,
-                          width: 12,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Menu',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-        
-      case 'Sélection':
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            // Checkbox
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Checkbox(
-                  value: true,
-                  onChanged: (value) {},
-                ),
-                Text(
-                  'Checkbox',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-            // Radio
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Radio(
-                  value: true,
-                  groupValue: true,
-                  onChanged: (value) {},
-                ),
-                Text(
-                  'Radio',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-            // Switch
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Switch(
-                  value: true,
-                  onChanged: (value) {},
-                ),
-                Text(
-                  'Switch',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-        
-      default:
-        return Center(
-          child: Icon(
-            _getIconForComponentType(componentType),
-            size: 48,
-            color: theme.colorScheme.primary,
-          ),
-        );
-    }
-  }
-  
-  // Méthode pour obtenir l'icône correspondant au type de composant
-  IconData _getIconForComponentType(String componentType) {
-    switch (componentType) {
-      case 'Boutons':
-        return Icons.touch_app;
-      case 'Cartes':
-        return Icons.crop_square;
-      case 'Champs de texte':
-        return Icons.text_fields;
-      case 'Dialogues':
-        return Icons.chat_bubble_outline;
-      case 'Navigation':
-        return Icons.menu;
-      case 'Sélection':
-        return Icons.check_circle_outline;
-      default:
-        return Icons.widgets;
-    }
-  }
+  // Suppression des méthodes non utilisées
   Widget _buildColorCircle(Color color, String label) {
     return Column(
       children: [
