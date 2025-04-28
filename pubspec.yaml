@@ -14,11 +14,13 @@ dependencies:
   provider: ^6.0.5
   flutter_colorpicker: ^1.0.3
   file_picker: ^5.3.1
-  path_provider: ^2.1.0
+  path_provider: ^2.1.1
   url_launcher: ^6.1.12
   flex_color_scheme: ^7.3.1
   flutter_svg: ^2.0.7
   google_fonts: ^5.1.0  # Ajout de google_fonts pour utiliser Montserrat sans fichiers TTF
+  http: ^1.1.0
+  permission_handler: ^10.4.3
 
 dev_dependencies:
   flutter_test:
@@ -31,13 +33,17 @@ flutter:
   # Vous devez créer un dossier assets à la racine du projet
   # et y copier les fichiers depuis lib/views/screens/oroneo/
   assets:
+    - assets/oroneo/
+    - assets/oroneo/logos/
     - assets/oroneo/logos/Logodark.svg
     - assets/oroneo/logos/Logolight.svg
     - assets/oroneo/logos/Odark.svg
     - assets/oroneo/logos/Ogrey.svg
     - assets/oroneo/logos/Olight.svg
-    - assets/oroneo/carousel/
+    - assets/oroneo/images/
     - assets/oroneo/icons/
+    - assets/oroneo/fonts/
+    - assets/oroneo/carousel/
   
   # Nous utiliserons google_fonts au lieu des fichiers TTF locaux
   # fonts:

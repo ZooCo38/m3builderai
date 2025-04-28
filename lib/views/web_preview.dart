@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../theme/theme_controller.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io' as io;
+import 'dart:convert';
 
 class WebPreview extends StatefulWidget {
   const WebPreview({Key? key}) : super(key: key);
@@ -21,26 +22,30 @@ class _WebPreviewState extends State<WebPreview> {
     super.initState();
     _checkAssets();
   }
-
-  // Fonction pour vérifier l'existence des assets
+  
   Future<void> _checkAssets() async {
     try {
-      // Utiliser io.Platform.pathSeparator pour la compatibilité cross-platform
-      final directory = io.Directory('${io.Directory.current.path}${io.Platform.pathSeparator}assets${io.Platform.pathSeparator}oroneo${io.Platform.pathSeparator}logos');
+      // Vérifier si l'asset existe en utilisant DefaultAssetBundle
+      final manifestContent = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
+      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
       
-      if (await directory.exists()) {
-        final files = await directory.list().toList();
-        setState(() {
-          _assetStatus = 'Dossier trouvé. Fichiers: ${files.map((f) => f.path.split(io.Platform.pathSeparator).last).join(', ')}';
-        });
-      } else {
-        setState(() {
-          _assetStatus = 'Dossier non trouvé: ${directory.path}';
-        });
-      }
+      // Afficher toutes les clés du manifeste pour déboguer
+      final allAssets = manifestMap.keys.toList();
+      
+      // Filtrer les assets qui contiennent 'oroneo/logos'
+      final svgAssets = manifestMap.keys.where((String key) => 
+        key.contains('oroneo/logos') && key.endsWith('.svg')).toList();
+      
+      setState(() {
+        if (svgAssets.isNotEmpty) {
+          _assetStatus = 'Assets SVG trouvés: ${svgAssets.join(', ')}';
+        } else {
+          _assetStatus = 'Aucun asset SVG trouvé dans oroneo/logos. Tous les assets: ${allAssets.take(10).join(', ')}...';
+        }
+      });
     } catch (e) {
       setState(() {
-        _assetStatus = 'Erreur: $e';
+        _assetStatus = 'Erreur lors de la vérification des assets: $e';
       });
     }
   }
@@ -179,21 +184,23 @@ class _WebPreviewState extends State<WebPreview> {
                                       SizedBox(
                                         width: 32,
                                         height: 32,
-                                        child: SvgPicture.asset(
+                                        child: Image.asset(
                                           'assets/oroneo/logos/Logodark.svg',
-                                          semanticsLabel: 'Logo Oroneo',
-                                          // Afficher un placeholder en cas d'erreur
-                                          placeholderBuilder: (BuildContext context) => CircleAvatar(
-                                            backgroundColor: currentTheme.colorScheme.primary,
-                                            radius: 16,
-                                            child: Text(
-                                              'O',
-                                              style: TextStyle(
-                                                color: currentTheme.colorScheme.onPrimary,
-                                                fontWeight: FontWeight.bold,
+                                          semanticLabel: 'Logo Oroneo',
+                                          errorBuilder: (context, error, stackTrace) {
+                                            print('Erreur de chargement du logo: $error');
+                                            return CircleAvatar(
+                                              backgroundColor: currentTheme.colorScheme.primary,
+                                              radius: 16,
+                                              child: Text(
+                                                'O',
+                                                style: TextStyle(
+                                                  color: currentTheme.colorScheme.onPrimary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                            ),
-                                          ),
+                                            );
+                                          },
                                         ),
                                       ),
                                       const SizedBox(width: 8),
