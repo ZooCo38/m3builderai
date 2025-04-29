@@ -1,12 +1,9 @@
-// Dans oroneo_screens.dart, mettre à jour les imports
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:m3builderai/views/screens/oroneo/oroneo_dash_screen.dart'; // Chemin absolu
-import 'package:m3builderai/views/screens/oroneo/oroneo_login_screen.dart'; // Chemin absolu
-import 'package:m3builderai/views/screens/oroneo/oroneo_home_screen.dart'; // Chemin absolu
-import 'package:m3builderai/views/screens/oroneo/oroneo_chat_screen.dart'; // Chemin absolu
-import 'package:m3builderai/views/screens/oroneo/oroneo_retirement_simulation_screen.dart'; // Chemin absolu
-import 'package:m3builderai/views/screens/oroneo/oroneo_client_account_screen.dart'; // Chemin absolu
+import 'oroneo_dash_screen.dart';
+import 'oroneo_login_screen.dart';
+import 'oroneo_home_screen.dart';
+import 'oroneo_chat_screen.dart';
+import 'oroneo_client_account_screen.dart';
 
 class OroneoScreens extends StatefulWidget {
   const OroneoScreens({super.key});
@@ -16,133 +13,116 @@ class OroneoScreens extends StatefulWidget {
 }
 
 class _OroneoScreensState extends State<OroneoScreens> {
-  int _currentOroneoScreen = 0;
-  final PageController _pageController = PageController();
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
+  int _currentScreenIndex = 0;
+  
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    // Liste des écrans Oroneo
-    final List<Widget> oroneoScreens = [
-      const OroneoDashScreen(),
-      const OroneoLoginScreen(),
-      const OroneoHomeScreen(),
-      const OroneoChatScreen(),
-      const OroneoRetirementSimulationScreen(),
-      const OroneoClientAccountScreen(),
-    ];
-    
-    return Column(
-      children: [
-        // App Bar
-        Container(
-          height: 56,
-          color: colorScheme.surfaceVariant.withOpacity(0.3),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Icon(Icons.menu),
-              // Remplacer le texte par le logo SVG
-              SvgPicture.asset(
-                'assets/oroneo/logos/Logodark.svg',
-                height: 28,
-                colorFilter: ColorFilter.mode(
-                  colorScheme.onSurface, // Utilise la couleur du texte du thème
-                  BlendMode.srcIn,
-                ),
-                placeholderBuilder: (BuildContext context) => Container(
-                  height: 28,
-                  width: 84,
-                  color: Colors.transparent,
-                  child: Center(
-                    child: Text(
-                      'ORONEO',
-                      style: TextStyle(
-                        color: colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const Icon(Icons.settings),
-            ],
-          ),
-        ),
-        
-        // Navigation des écrans Oroneo
-        Container(
-          height: 50,
-          color: colorScheme.surface,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            children: [
-              _buildOroneoNavButton('Accueil', 0),
-              _buildOroneoNavButton('Login', 1),
-              _buildOroneoNavButton('Dashboard', 2),
-              _buildOroneoNavButton('Chat', 3),
-              _buildOroneoNavButton('Retraite', 4),
-              _buildOroneoNavButton('Compte', 5),
-            ],
-          ),
-        ),
-        
-        // Contenu de l'écran Oroneo sélectionné
-        Expanded(
-          child: PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentOroneoScreen = index;
-              });
-            },
-            children: oroneoScreens,
-          ),
-        ),
-      ],
+    return Scaffold(
+      body: _buildCurrentScreen(),
+      bottomNavigationBar: _currentScreenIndex >= 2 ? _buildBottomNavBar() : null,
+      floatingActionButton: _currentScreenIndex == 2 
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                setState(() {
+                  _currentScreenIndex = 3; // Navigate to chat screen
+                });
+              },
+              icon: const Icon(Icons.chat),
+              label: const Text('Assistant'),
+            ) 
+          : null,
     );
   }
   
-  Widget _buildOroneoNavButton(String title, int index) {
+  Widget _buildCurrentScreen() {
+    switch (_currentScreenIndex) {
+      case 0:
+        return OroneoDashScreen(
+          onCreateAccount: () {
+            setState(() {
+              _currentScreenIndex = 1; // Navigate to login/register screen
+            });
+          },
+          onLogin: () {
+            setState(() {
+              _currentScreenIndex = 1; // Navigate to login/register screen
+            });
+          },
+        );
+      case 1:
+        return OroneoLoginScreen(
+          onLogin: () {
+            setState(() {
+              _currentScreenIndex = 2; // Navigate to home screen after login
+            });
+          },
+          onRegister: () {
+            setState(() {
+              _currentScreenIndex = 2; // Navigate to home screen after registration
+            });
+          },
+        );
+      case 2:
+        return OroneoHomeScreen(
+          onChatStart: () {
+            setState(() {
+              _currentScreenIndex = 3; // Navigate to chat screen
+            });
+          },
+        );
+      case 3:
+        return const OroneoChatScreen();
+      case 4:
+        return OroneoClientAccountScreen(
+          onBackToHome: () {
+            setState(() {
+              _currentScreenIndex = 2; // Retour à l'écran d'accueil
+            });
+          },
+        );
+      default:
+        return OroneoDashScreen(
+          onCreateAccount: () {
+            setState(() {
+              _currentScreenIndex = 1;
+            });
+          },
+          onLogin: () {
+            setState(() {
+              _currentScreenIndex = 1;
+            });
+          },
+        );
+    }
+  }
+  
+  Widget _buildBottomNavBar() {
     final colorScheme = Theme.of(context).colorScheme;
-    final isSelected = _currentOroneoScreen == index;
     
-    return GestureDetector(
-      onTap: () {
+    return BottomNavigationBar(
+      currentIndex: _currentScreenIndex - 2, // Adjust index for bottom nav items
+      onTap: (index) {
         setState(() {
-          _currentOroneoScreen = index;
-          _pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
+          _currentScreenIndex = index + 2; // Adjust to match screen indices
         });
       },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+      items: [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.home),
+          label: 'Accueil',
+          backgroundColor: colorScheme.surface,
         ),
-        alignment: Alignment.center,
-        child: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.chat),
+          label: 'Assistant',
+          backgroundColor: colorScheme.surface,
         ),
-      ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.account_circle),
+          label: 'Compte',
+          backgroundColor: colorScheme.surface,
+        ),
+      ],
     );
   }
 }

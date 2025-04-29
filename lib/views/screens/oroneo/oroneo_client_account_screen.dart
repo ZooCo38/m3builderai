@@ -1,297 +1,310 @@
 import 'package:flutter/material.dart';
 
 class OroneoClientAccountScreen extends StatelessWidget {
-  const OroneoClientAccountScreen({super.key});
+  final VoidCallback onBackToHome;
+
+  const OroneoClientAccountScreen({
+    Key? key, 
+    required this.onBackToHome
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // En-tête avec informations du client
-          Container(
-            padding: const EdgeInsets.all(24),
-            color: colorScheme.primaryContainer.withOpacity(0.5),
-            child: Column(
-              children: [
-                // Avatar du client
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: colorScheme.primary,
-                  child: Text(
-                    'TD',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: colorScheme.onPrimary,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mon compte'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: onBackToHome,
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // En-tête du profil
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              color: theme.colorScheme.primaryContainer,
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: theme.colorScheme.onPrimaryContainer,
+                    child: Icon(
+                      Icons.person,
+                      size: 60,
+                      color: theme.colorScheme.primaryContainer,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Jean Dupont',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Nom du client
-                Text(
-                  'Thomas Dupont',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                const SizedBox(height: 4),
-                
-                // Email du client
-                Text(
-                  'thomas.dupont@example.com',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Bouton d'édition du profil
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Modifier le profil'),
-                ),
-              ],
-            ),
-          ),
-          
-          // Résumé des contrats
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Mes contrats',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Carte contrat PER
-                _buildContractCard(
-                  context,
-                  'Plan Épargne Retraite',
-                  'PER Individuel',
-                  '45 600 €',
-                  '+4.2% cette année',
-                  Icons.trending_up,
-                  colorScheme.primary,
-                ),
-                
-                // Carte contrat Assurance Vie
-                _buildContractCard(
-                  context,
-                  'Assurance Vie',
-                  'Multisupport',
-                  '78 250 €',
-                  '+3.8% cette année',
-                  Icons.account_balance_wallet,
-                  colorScheme.secondary,
-                ),
-                
-                // Carte contrat Prévoyance
-                _buildContractCard(
-                  context,
-                  'Prévoyance',
-                  'Protection Famille',
-                  '150 000 €',
-                  'Capital garanti',
-                  Icons.family_restroom,
-                  colorScheme.tertiary,
-                ),
-              ],
-            ),
-          ),
-          
-          // Documents
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Mes documents',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Liste de documents
-                _buildDocumentItem(
-                  context,
-                  'Relevé annuel PER',
-                  '15/01/2023',
-                  Icons.description,
-                ),
-                
-                _buildDocumentItem(
-                  context,
-                  'Relevé annuel Assurance Vie',
-                  '10/01/2023',
-                  Icons.description,
-                ),
-                
-                _buildDocumentItem(
-                  context,
-                  'Attestation fiscale',
-                  '28/02/2023',
-                  Icons.receipt_long,
-                ),
-                
-                _buildDocumentItem(
-                  context,
-                  'Conditions générales Prévoyance',
-                  '05/06/2022',
-                  Icons.gavel,
-                ),
-              ],
-            ),
-          ),
-          
-          // Paramètres du compte
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Paramètres',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Liste de paramètres
-                _buildSettingsItem(
-                  context,
-                  'Informations personnelles',
-                  Icons.person,
-                ),
-                
-                _buildSettingsItem(
-                  context,
-                  'Sécurité et connexion',
-                  Icons.security,
-                ),
-                
-                _buildSettingsItem(
-                  context,
-                  'Notifications',
-                  Icons.notifications,
-                ),
-                
-                _buildSettingsItem(
-                  context,
-                  'Confidentialité',
-                  Icons.privacy_tip,
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Bouton de déconnexion
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.logout),
-                    label: const Text('Déconnexion'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
+                  Text(
+                    'jean.dupont@example.com',
+                    style: TextStyle(
+                      color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Modifier le profil'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.colorScheme.onPrimaryContainer,
+                      side: BorderSide(color: theme.colorScheme.onPrimaryContainer),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          
-          const SizedBox(height: 24),
-        ],
+            
+            // Informations personnelles
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Informations personnelles',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInfoCard(
+                    context,
+                    'Informations de contact',
+                    [
+                      {'label': 'Téléphone', 'value': '06 12 34 56 78'},
+                      {'label': 'Adresse', 'value': '123 Rue de Paris, 75001 Paris'},
+                      {'label': 'Date de naissance', 'value': '15/05/1978'},
+                    ],
+                    Icons.contact_phone,
+                    theme,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInfoCard(
+                    context,
+                    'Situation professionnelle',
+                    [
+                      {'label': 'Statut', 'value': 'Salarié'},
+                      {'label': 'Entreprise', 'value': 'Entreprise ABC'},
+                      {'label': 'Secteur', 'value': 'Finance'},
+                    ],
+                    Icons.work,
+                    theme,
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Mes projets
+                  Text(
+                    'Mes projets',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProjectCard(
+                    context,
+                    'Préparation retraite',
+                    'Simulation et optimisation de votre retraite',
+                    '65%',
+                    0.65,
+                    theme.colorScheme.primary,
+                    theme,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildProjectCard(
+                    context,
+                    'Défiscalisation',
+                    'Réduction d\'impôts via investissement',
+                    '30%',
+                    0.3,
+                    theme.colorScheme.tertiary,
+                    theme,
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Paramètres du compte
+                  Text(
+                    'Paramètres du compte',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSettingItem(
+                    context,
+                    'Sécurité et confidentialité',
+                    'Gérer vos mots de passe et options de sécurité',
+                    Icons.security,
+                    theme,
+                  ),
+                  _buildSettingItem(
+                    context,
+                    'Notifications',
+                    'Gérer vos préférences de notifications',
+                    Icons.notifications,
+                    theme,
+                  ),
+                  _buildSettingItem(
+                    context,
+                    'Préférences de communication',
+                    'Gérer comment nous communiquons avec vous',
+                    Icons.email,
+                    theme,
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Bouton de déconnexion
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Se déconnecter'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: theme.colorScheme.error,
+                        side: BorderSide(color: theme.colorScheme.error),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
   
-  Widget _buildContractCard(
+  // Méthode pour construire une carte d'informations
+  Widget _buildInfoCard(
     BuildContext context,
     String title,
-    String subtitle,
-    String amount,
-    String performance,
+    List<Map<String, String>> items,
     IconData icon,
-    Color color,
+    ThemeData theme,
   ) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: color.withOpacity(0.2),
-                  child: Icon(
-                    icon,
-                    color: color,
+                Icon(icon, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.chevron_right),
               ],
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Valeur actuelle',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    Text(
-                      amount,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+            const Divider(height: 24),
+            ...items.map((item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 120,
+                    child: Text(
+                      item['label']!,
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
+                  ),
+                  Expanded(
+                    child: Text(
+                      item['value']!,
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  // Méthode pour construire une carte de projet
+  Widget _buildProjectCard(
+    BuildContext context,
+    String title,
+    String description,
+    String progressText,
+    double progressValue,
+    Color progressColor,
+    ThemeData theme,
+  ) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: TextStyle(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progressValue,
+                      backgroundColor: theme.colorScheme.surfaceVariant,
+                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                      minHeight: 8,
+                    ),
+                  ),
                 ),
-                Chip(
-                  label: Text(performance),
-                  backgroundColor: color.withOpacity(0.1),
-                  labelStyle: TextStyle(color: color),
+                const SizedBox(width: 12),
+                Text(
+                  progressText,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: progressColor,
+                  ),
                 ),
               ],
             ),
@@ -301,39 +314,24 @@ class OroneoClientAccountScreen extends StatelessWidget {
     );
   }
   
-  Widget _buildDocumentItem(
+  // Méthode pour construire un élément de paramètres
+  Widget _buildSettingItem(
     BuildContext context,
     String title,
-    String date,
+    String subtitle,
     IconData icon,
+    ThemeData theme,
   ) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-        child: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Icon(icon, color: theme.colorScheme.primary),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {},
       ),
-      title: Text(title),
-      subtitle: Text(date),
-      trailing: IconButton(
-        icon: const Icon(Icons.download),
-        onPressed: () {},
-      ),
-    );
-  }
-  
-  Widget _buildSettingsItem(
-    BuildContext context,
-    String title,
-    IconData icon,
-  ) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {},
     );
   }
 }

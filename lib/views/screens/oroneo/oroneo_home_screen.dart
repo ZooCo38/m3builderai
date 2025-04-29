@@ -1,161 +1,337 @@
 import 'package:flutter/material.dart';
 
 class OroneoHomeScreen extends StatelessWidget {
-  const OroneoHomeScreen({super.key});
+  final VoidCallback onChatStart;
+
+  const OroneoHomeScreen({
+    super.key, 
+    required this.onChatStart
+  });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // En-tête avec salutation
-          Container(
-            padding: const EdgeInsets.all(24),
-            color: colorScheme.primaryContainer.withOpacity(0.3),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Bonjour, Thomas',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+    return Scaffold(
+      appBar: AppBar(
+        title: Image.asset(
+          'assets/oroneo/images/logo.png',
+          height: 30,
+          errorBuilder: (context, error, stackTrace) {
+            return const Text('ORONEO');
+          },
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: theme.colorScheme.onPrimary,
+                    radius: 30,
+                    child: Text(
+                      'TD',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Que puis-je faire pour vous aujourd\'hui ?',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  Text(
+                    'Thomas Dupont',
+                    style: TextStyle(
+                      color: theme.colorScheme.onPrimary,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    'thomas.dupont@example.com',
+                    style: TextStyle(
+                      color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          
-          // Section chat avec l'IA
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Input chat
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Quel est votre projet ?',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: () {},
-                    ),
-                    filled: true,
-                    fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                  ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Accueil'),
+              selected: true,
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_circle),
+              title: const Text('Compte client'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('Historique des conversations'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Paramètres'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.help),
+              title: const Text('Aide'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Message de bienvenue
+              Text(
+                'Bonjour, Thomas !',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-                
-                const SizedBox(height: 16),
-                
-                // Boutons d'action rapide
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Que souhaitez-vous faire aujourd\'hui ?',
+                style: theme.textTheme.bodyLarge,
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Zone de chat avec l'IA
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildQuickActionChip('Aide-moi pour ma retraite', colorScheme),
-                    _buildQuickActionChip('Je veux défiscaliser', colorScheme),
-                    _buildQuickActionChip('J\'ai un projet à financer', colorScheme),
-                    _buildQuickActionChip('Je protège ma famille', colorScheme),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: theme.colorScheme.primary,
+                          child: Icon(
+                            Icons.smart_toy,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Assistant Oroneo',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Quel est votre projet ?',
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Input de texte
+                    InkWell(
+                      onTap: onChatStart,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: theme.colorScheme.outline,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Posez votre question...',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.mic,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.send,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Suggestions rapides (chips)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ActionChip(
+                          label: const Text('Je veux simuler ma retraite'),
+                          onPressed: onChatStart,
+                          avatar: const Icon(Icons.calculate, size: 16),
+                        ),
+                        ActionChip(
+                          label: const Text('Je veux défiscaliser'),
+                          onPressed: onChatStart,
+                          avatar: const Icon(Icons.savings, size: 16),
+                        ),
+                        ActionChip(
+                          label: const Text('J\'ai un projet à financer'),
+                          onPressed: onChatStart,
+                          avatar: const Icon(Icons.account_balance, size: 16),
+                        ),
+                        ActionChip(
+                          label: const Text('Je protège ma famille'),
+                          onPressed: onChatStart,
+                          avatar: const Icon(Icons.family_restroom, size: 16),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          
-          // Cartes de services
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Nos services',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Titre de la section services
+              Text(
+                'Nos services',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Cartes de services
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.8,
+                children: [
+                  _buildServiceCard(
+                    context,
+                    'Simulateur retraite',
+                    'Estimez votre pension et planifiez votre avenir',
+                    Icons.calculate,
+                    theme.colorScheme.primaryContainer,
+                    theme.colorScheme.onPrimaryContainer,
+                    onChatStart,
                   ),
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Carte simulation retraite
-                _buildServiceCard(
-                  context,
-                  'Simulation retraite',
-                  'Estimez vos revenus futurs et préparez votre retraite sereinement',
-                  Icons.trending_up,
-                  colorScheme.primary,
-                ),
-                
-                // Carte épargne et défiscalisation
-                _buildServiceCard(
-                  context,
-                  'J\'épargne, je défiscalise',
-                  'Optimisez votre fiscalité avec nos solutions d\'investissement',
-                  Icons.savings,
-                  colorScheme.secondary,
-                ),
-                
-                // Carte protection famille
-                _buildServiceCard(
-                  context,
-                  'Je protège ma famille',
-                  'Assurez l\'avenir de vos proches avec nos solutions de protection',
-                  Icons.family_restroom,
-                  colorScheme.tertiary,
-                ),
-              ],
-            ),
+                  _buildServiceCard(
+                    context,
+                    'J\'épargne et je défiscalise',
+                    'Optimisez votre fiscalité et votre épargne',
+                    Icons.savings,
+                    theme.colorScheme.secondaryContainer,
+                    theme.colorScheme.onSecondaryContainer,
+                    onChatStart,
+                  ),
+                  _buildServiceCard(
+                    context,
+                    'Je prépare mon futur',
+                    'Investissez pour vos projets de vie',
+                    Icons.trending_up,
+                    theme.colorScheme.tertiaryContainer,
+                    theme.colorScheme.onTertiaryContainer,
+                    onChatStart,
+                  ),
+                  _buildServiceCard(
+                    context,
+                    'Je protège mes proches',
+                    'Solutions d\'assurance pour votre famille',
+                    Icons.shield,
+                    theme.colorScheme.errorContainer,
+                    theme.colorScheme.onErrorContainer,
+                    onChatStart,
+                  ),
+                ],
+              ),
+            ],
           ),
-          
-          const SizedBox(height: 24),
-        ],
+        ),
       ),
-    );
-  }
-  
-  Widget _buildQuickActionChip(String label, ColorScheme colorScheme) {
-    return FilterChip(
-      label: Text(label),
-      onSelected: (_) {},
-      backgroundColor: colorScheme.surfaceVariant,
-      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
     );
   }
   
   Widget _buildServiceCard(
     BuildContext context,
-    String title, 
-    String description, 
-    IconData icon, 
-    Color color
+    String title,
+    String description,
+    IconData icon,
+    Color backgroundColor,
+    Color foregroundColor,
+    VoidCallback onTap,
   ) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      clipBehavior: Clip.antiAlias,
       elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: color.withOpacity(0.2),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              color: backgroundColor,
               child: Icon(
                 icon,
-                color: color,
+                size: 40,
+                color: foregroundColor,
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
+            Padding(
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -164,16 +340,19 @@ class OroneoHomeScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     description,
                     style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right),
           ],
         ),
       ),
