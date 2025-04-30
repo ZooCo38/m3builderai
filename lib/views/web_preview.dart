@@ -6,7 +6,12 @@ import 'dart:io' as io;
 import 'dart:convert';
 
 class WebPreview extends StatefulWidget {
-  const WebPreview({Key? key}) : super(key: key);
+  final Widget? initialContent;
+  
+  const WebPreview({
+    Key? key,
+    this.initialContent,
+  }) : super(key: key);
 
   @override
   State<WebPreview> createState() => _WebPreviewState();

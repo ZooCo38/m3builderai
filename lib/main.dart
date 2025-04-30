@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'theme/theme_controller.dart';
 import 'views/home_view.dart';
 import 'themes/oroneo_theme.dart'; // Importer le thème Oroneo
-
+import 'package:m3builderai/views/screens/oroneo_login_screen.dart'; // Ajout de l'import manquant
+import 'views/screens/oroneo_home_screen.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -35,3 +36,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// Suppression de la fonction onLoginSuccess qui était en dehors d'une classe

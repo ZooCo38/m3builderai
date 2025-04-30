@@ -23,6 +23,7 @@ dependencies:
   permission_handler: ^10.4.3
   # Remplacer la version actuelle par une plus récente
   flutter_carousel_widget: ^2.1.2  # Essayez une version plus récente si disponible
+  font_awesome_flutter: ^10.8.0
   # Ou utilisez une alternative comme
   # flutter_carousel_widget: ^2.1.2
 
@@ -33,9 +34,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  # Vous devez créer un dossier assets à la racine du projet
-  # et y copier les fichiers depuis lib/views/screens/oroneo/
+  # Supprimer la partie fonts: MaterialIcons
   assets:
     - assets/oroneo/
     - assets/oroneo/logos/
@@ -46,6 +45,9 @@ flutter:
     - assets/oroneo/logos/Olight.svg
     - assets/oroneo/images/
     - assets/oroneo/icons/
+    - assets/oroneo/icons/AppleLogo.svg
+    - assets/oroneo/icons/appleRainbow.svg
+    - assets/oroneo/icons/GoogleGlogo.svg
     - assets/oroneo/fonts/
     - assets/oroneo/carousel/
   
