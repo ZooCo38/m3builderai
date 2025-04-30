@@ -17,8 +17,12 @@ class OroneoHomeScreen extends StatelessWidget {
       backgroundColor: colorScheme.background,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: colorScheme.surface, // Ajout de la couleur de fond
         leading: IconButton(
-          icon: _buildSvgIcon('menu'),
+          icon: _buildSvgIcon(
+            'menu',
+            color: colorScheme.onSurface, // Couleur adaptative pour l'icône
+          ),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
@@ -26,7 +30,10 @@ class OroneoHomeScreen extends StatelessWidget {
         title: const OroneoLogo(size: 20, useFullLogo: true),
         actions: [
           IconButton(
-            icon: _buildSvgIcon('notifications'),
+            icon: _buildSvgIcon(
+              'notifications',
+              color: colorScheme.onSurface, // Couleur adaptative pour l'icône
+            ),
             onPressed: () {},
           ),
         ],
@@ -89,9 +96,9 @@ class OroneoHomeScreen extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: 'Un projet où je pourrais vous aider ?',
                       filled: true,
-                      fillColor: colorScheme.surface,
+                      fillColor: colorScheme.surfaceVariant,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(8), // Harmonisation avec les chips
                         borderSide: BorderSide.none,
                       ),
                       suffixIcon: Row(
@@ -110,14 +117,43 @@ class OroneoHomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                  Row(
                     children: [
-                      _buildActionChip(context, 'Simuler votre retraite', 'analytics'),
-                      _buildActionChip(context, 'Défiscaliser simplement', 'savings'),
-                      _buildActionChip(context, 'Protéger sa famille', 'shield'),
-                      _buildActionChip(context, 'Un projet à financer ?', 'euro'),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 140, // Largeur fixe pour tous les chips
+                              child: _buildActionChip(context, 'Retraite', 'analytics'),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: 140, // Largeur fixe pour tous les chips
+                              child: _buildActionChip(context, 'Protection', 'shield'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              width: 140, // Largeur fixe pour tous les chips
+                              child: _buildActionChip(context, 'Défiscaliser', 'savings'),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: 140, // Largeur fixe pour tous les chips
+                              child: _buildActionChip(context, 'Projet', 'euro'),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -155,7 +191,10 @@ class OroneoHomeScreen extends StatelessWidget {
         child: FloatingActionButton.extended(
           onPressed: () {},
           label: const Text('Nouvelle conversation'),
-          icon: _buildSvgIcon('add'),
+          icon: _buildSvgIcon(
+            'add',
+            color: colorScheme.onPrimaryContainer, // Utilisation de onPrimaryContainer
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -164,20 +203,31 @@ class OroneoHomeScreen extends StatelessWidget {
 
   Widget _buildActionChip(BuildContext context, String label, String iconName) {
     final colorScheme = Theme.of(context).colorScheme;
-    return ActionChip(
-      avatar: SizedBox(
-        width: 18,
-        height: 18,
-        child: _buildSvgIcon(
-          iconName,
-          size: 16,
-          color: colorScheme.primary,
+    return Container(
+      width: 140,
+      child: ActionChip(
+        avatar: SizedBox(
+          width: 18,
+          height: 18,
+          child: _buildSvgIcon(
+            iconName,
+            size: 16,
+            color: colorScheme.primary,
+          ),
         ),
+        label: Container(
+          width: double.infinity,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        backgroundColor: colorScheme.surfaceVariant,
+        side: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+        onPressed: () {},
+        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
       ),
-      label: Text(label),
-      backgroundColor: colorScheme.surface,
-      side: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
-      onPressed: () {},
     );
   }
 
@@ -194,7 +244,7 @@ class OroneoHomeScreen extends StatelessWidget {
           child: _buildSvgIcon(
             iconName,
             size: 32,
-            color: colorScheme.primary,
+            color: theme.textTheme.titleMedium?.color, // Utilisation de la couleur du texte
           ),
         ),
         title: Text(
