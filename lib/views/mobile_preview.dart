@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:m3builderai/views/screens/oroneo_login_screen.dart';
 import 'package:m3builderai/views/screens/oroneo_home_screen.dart';
-import 'package:m3builderai/views/screens/oroneo_chat_screen.dart'; // Ajout de l'import manquant
+import 'package:m3builderai/views/screens/oroneo_chat_screen.dart';
+import 'package:m3builderai/views/screens/oroneo_simulation_screen.dart'; // Nouvel import
+import 'package:m3builderai/views/screens/oroneo_fs_dialog_simulation.dart';
 
 class MobilePreview extends StatefulWidget {
   const MobilePreview({super.key});
@@ -15,7 +17,9 @@ class _MobilePreviewState extends State<MobilePreview> {
   int _currentCarouselIndex = 0;
   bool _showLoginScreen = false;
   bool _showHomeScreen = false;
-  bool _showChatScreen = false;  // Nouvel état pour l'écran de chat
+  bool _showChatScreen = false;
+  bool _showSimulationScreen = false;  // Nouvel état pour l'écran de simulation
+  bool _showSimulationDialog = false;  // Nouvel état pour la boîte de dialogue
   
   final List<Map<String, dynamic>> _carouselItems = [
     {
@@ -105,13 +109,13 @@ class _MobilePreviewState extends State<MobilePreview> {
                         onLoginSuccess: () {
                           setState(() {
                             _showLoginScreen = false;
-                            _showHomeScreen = true;  // Afficher l'écran d'accueil
+                            _showHomeScreen = true;
                           });
                         },
                         onRegisterSuccess: () {
                           setState(() {
                             _showLoginScreen = false;
-                            _showHomeScreen = true;  // Afficher l'écran d'accueil
+                            _showHomeScreen = true;
                           });
                         },
                       )
@@ -121,6 +125,12 @@ class _MobilePreviewState extends State<MobilePreview> {
                               setState(() {
                                 _showHomeScreen = false;
                                 _showChatScreen = true;
+                              });
+                            },
+                            onSimulationNavigation: () {  // Nouveau callback
+                              setState(() {
+                                _showHomeScreen = false;
+                                _showSimulationScreen = true;
                               });
                             },
                           )
@@ -133,7 +143,31 @@ class _MobilePreviewState extends State<MobilePreview> {
                                   });
                                 },
                               )
-                            : Scaffold(
+                            : _showSimulationScreen  // Nouvelle condition
+                                ? OroneoSimulationScreen(
+                                    onBackPressed: () {
+                                      setState(() {
+                                        _showSimulationScreen = false;
+                                        _showHomeScreen = true;
+                                      });
+                                    },
+                                    onStartSimulation: () {
+                                      setState(() {
+                                        _showSimulationDialog = true;
+                                        _showSimulationScreen = false;
+                                      });
+                                    },
+                                  )
+                                : _showSimulationDialog
+                                    ? OroneoFsDialogSimulation(
+                                        onClose: () {
+                                          setState(() {
+                                            _showSimulationDialog = false;
+                                            _showSimulationScreen = true;
+                                          });
+                                        },
+                                      )
+                                    : Scaffold(
                         backgroundColor: colorScheme.background,
                         body: SafeArea(
                           child: Center(

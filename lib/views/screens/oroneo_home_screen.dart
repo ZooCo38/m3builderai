@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../widgets/oroneo/oroneo_app_bar.dart';
 import '../../widgets/oroneo/oroneo_drawer.dart';
-import '../../widgets/oroneo_logo.dart';
-import 'oroneo_chat_screen.dart';
+///import '../../widgets/oroneo_logo.dart';
+///import 'oroneo_chat_screen.dart';
 
 class OroneoHomeScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final VoidCallback onChatNavigation;
+  final VoidCallback onSimulationNavigation;  // Nouveau callback
   
   OroneoHomeScreen({
     super.key,
     required this.onChatNavigation,
+    required this.onSimulationNavigation,  // Ajout du paramètre
   });
 
   @override
@@ -209,7 +211,7 @@ class OroneoHomeScreen extends StatelessWidget {
           child: _buildSvgIcon(
             iconName,
             size: 32,
-            color: theme.textTheme.titleMedium?.color, // Utilisation de la couleur du texte
+            color: theme.textTheme.titleMedium?.color,
           ),
         ),
         title: Text(
@@ -223,7 +225,11 @@ class OroneoHomeScreen extends StatelessWidget {
           style: theme.textTheme.bodyMedium,
         ),
         trailing: Icon(Icons.arrow_forward_ios, color: colorScheme.primary),
-        onTap: () {},
+        onTap: () {
+          if (title == 'Simulateur retraite') {
+            onSimulationNavigation();
+          }
+        },
       ),
     );
   }
