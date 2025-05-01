@@ -15,19 +15,20 @@ class OroneoLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final String assetName = useFullLogo
-        ? (isLight ? 'assets/oroneo/Logolight.svg' : 'assets/oroneo/Logodark.svg')
-        : (isLight
-            ? 'assets/oroneo/Olight.svg'
-            : Theme.of(context).brightness == Brightness.dark
-                ? 'assets/oroneo/Odark.svg'
-                : 'assets/oroneo/Ogrey.svg');
+        ? 'assets/oroneo/logos/Logodark.svg'
+        : 'assets/oroneo/logos/Ogrey.svg';
 
     return SvgPicture.asset(
       assetName,
       width: useFullLogo ? size * 3 : size,
       height: size,
       semanticsLabel: 'Oroneo Logo',
+      colorFilter: ColorFilter.mode(
+        colorScheme.onBackground,
+        BlendMode.srcIn,
+      ),
     );
   }
 }

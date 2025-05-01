@@ -7,6 +7,7 @@ import '../theme/theme_controller.dart';
 import '../widgets/flex_theme_settings.dart';
 import '../views/mobile_preview.dart'; // Ajout de l'import pour MobilePreview
 import '../views/web_preview.dart'; // Ajout de l'import pour WebPreview si disponible
+import '../views/assets_manager.dart'; // Ajout de l'import pour la nouvelle vue de gestion des assets
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -17,7 +18,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
-  final List<String> _viewTitles = ['Components', 'Mobile', 'Web'];
+  final List<String> _viewTitles = ['Components', 'Mobile', 'Web', 'Assets']; // Ajout de 'Assets' dans les titres
   
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,7 @@ class _HomeViewState extends State<HomeView> {
                 children: [
                   Expanded(
                     child: NavigationRail(
-                      backgroundColor: Colors.transparent, // Utiliser la couleur du Container parent
+                      backgroundColor: Colors.transparent,
                       selectedIndex: _selectedIndex,
                       onDestinationSelected: (int index) {
                         setState(() {
@@ -61,6 +62,11 @@ class _HomeViewState extends State<HomeView> {
                         NavigationRailDestination(
                           icon: Icon(Icons.laptop),
                           label: Text('Web'),
+                        ),
+                        NavigationRailDestination(
+                          // Essayons avec une autre icône pour voir si c'est un problème d'icône spécifique
+                          icon: Icon(Icons.folder),
+                          label: Text('Assets'),
                         ),
                       ],
                     ),
@@ -317,8 +323,9 @@ class _HomeViewState extends State<HomeView> {
       case 1:
         return const MobilePreview();
       case 2:
-        // Remplacer le placeholder par WebPreview
         return const WebPreview();
+      case 3:
+        return const AssetsManager(); // Nouvelle vue pour la gestion des assets
       default:
         return ComponentPreview(viewType: _viewTitles[0]);
     }
@@ -334,8 +341,8 @@ class _HomeViewState extends State<HomeView> {
         IconButton(
           icon: SvgPicture.asset(
             themeController.useOroneoTheme
-                ? 'assets/oroneo/Odark.svg'
-                : 'assets/oroneo/Olight.svg',
+                ? 'assets/oroneo/logos/Odark.svg'
+                : 'assets/oroneo/logos/Olight.svg',
             width: 24,
             height: 24,
             colorFilter: ColorFilter.mode(

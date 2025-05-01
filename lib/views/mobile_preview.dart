@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:m3builderai/views/screens/oroneo_login_screen.dart';
+import 'package:m3builderai/views/screens/oroneo_home_screen.dart';
+import 'package:m3builderai/views/screens/oroneo_chat_screen.dart'; // Ajout de l'import manquant
 
 class MobilePreview extends StatefulWidget {
   const MobilePreview({super.key});
@@ -8,19 +12,45 @@ class MobilePreview extends StatefulWidget {
 }
 
 class _MobilePreviewState extends State<MobilePreview> {
-  int _currentIndex = 0;
+  int _currentCarouselIndex = 0;
+  bool _showLoginScreen = false;
+  bool _showHomeScreen = false;
+  bool _showChatScreen = false;  // Nouvel état pour l'écran de chat
+  
+  final List<Map<String, dynamic>> _carouselItems = [
+    {
+      'title': 'Votre assistant personnel IA finance',
+      'description': 'Obtenez des conseils financiers personnalisés grâce à notre IA',
+      'icon': Icons.assistant,
+    },
+    {
+      'title': 'Simulateur Retraite personnalisé',
+      'description': 'Planifiez votre retraite avec précision',
+      'icon': Icons.calculate,
+    },
+    {
+      'title': 'Je défiscalise avec Oroneo',
+      'description': 'Optimisez votre fiscalité simplement',
+      'icon': Icons.savings,
+    },
+    {
+      'title': 'Je prépare l\'avenir avec Oroneo',
+      'description': 'Des solutions adaptées à vos projets de vie',
+      'icon': Icons.trending_up,
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
-    // Utiliser les couleurs du thème actuel
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return Center(
       child: Container(
-        width: 380, // Ajusté à 380px
-        height: 844, // Ajusté à 844px pour correspondre au ratio d'un téléphone moderne
+        width: 380,
+        height: 844,
         decoration: BoxDecoration(
-          color: colorScheme.background, // Utiliser la couleur de fond du thème au lieu de noir
+          color: colorScheme.background, // Utiliser la couleur du thème
           borderRadius: BorderRadius.circular(40),
           border: Border.all(
             color: Colors.black,
@@ -40,20 +70,18 @@ class _MobilePreviewState extends State<MobilePreview> {
             children: [
               // Status Bar
               Container(
-                height: 30, // Légèrement plus grand pour les téléphones modernes
-                color: colorScheme.surface,
+                height: 30,
+                color: colorScheme.surface, // Utiliser la couleur du thème
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '9:30',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: theme.textTheme.bodySmall,
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.circle, size: 12),
-                        const SizedBox(width: 8),
                         const Icon(Icons.signal_cellular_4_bar, size: 16),
                         const SizedBox(width: 4),
                         const Icon(Icons.wifi, size: 16),
@@ -65,119 +93,203 @@ class _MobilePreviewState extends State<MobilePreview> {
                 ),
               ),
               
-              // Contenu principal qui change en fonction de l'index
+              // Contenu principal - Dashboard Oroneo ou écran de connexion
               Expanded(
-                child: _buildScreen(_currentIndex),
-              ),
-              
-              // Bottom Navigation Bar
-              Container(
-                height: 80,
-                color: colorScheme.surfaceVariant.withOpacity(0.3),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _currentIndex = 0;
-                        });
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: _currentIndex == 0 
-                                ? colorScheme.primaryContainer 
-                                : colorScheme.surfaceVariant,
-                            radius: 20,
-                            child: Icon(
-                              Icons.home,
-                              color: _currentIndex == 0 
-                                  ? colorScheme.onPrimaryContainer 
-                                  : colorScheme.onSurfaceVariant,
+                child: _showLoginScreen 
+                    ? OroneoLoginScreen(
+                        onBackPressed: () {
+                          setState(() {
+                            _showLoginScreen = false;
+                          });
+                        },
+                        onLoginSuccess: () {
+                          setState(() {
+                            _showLoginScreen = false;
+                            _showHomeScreen = true;  // Afficher l'écran d'accueil
+                          });
+                        },
+                        onRegisterSuccess: () {
+                          setState(() {
+                            _showLoginScreen = false;
+                            _showHomeScreen = true;  // Afficher l'écran d'accueil
+                          });
+                        },
+                      )
+                    : _showHomeScreen 
+                        ? OroneoHomeScreen(
+                            onChatNavigation: () {
+                              setState(() {
+                                _showHomeScreen = false;
+                                _showChatScreen = true;
+                              });
+                            },
+                          )
+                        : _showChatScreen
+                            ? OroneoChatScreen(
+                                onBackPressed: () {
+                                  setState(() {
+                                    _showChatScreen = false;
+                                    _showHomeScreen = true;
+                                  });
+                                },
+                              )
+                            : Scaffold(
+                        backgroundColor: colorScheme.background,
+                        body: SafeArea(
+                          child: Center(
+                            child: SingleChildScrollView(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Logo Oroneo SVG
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 40.0, bottom: 40.0),
+                                      child: SvgPicture.asset(
+                                        'assets/oroneo/logos/Logodark.svg',
+                                        height: 60,
+                                        colorFilter: ColorFilter.mode(
+                                          colorScheme.onBackground, // Utiliser la couleur du thème
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
+                                    ),
+                                    
+                                    // Carousel avec PageView
+                                    Container(
+                                      height: 200,
+                                      width: double.infinity,
+                                      margin: const EdgeInsets.only(bottom: 16),
+                                      child: PageView.builder(
+                                        controller: PageController(viewportFraction: 0.95),
+                                        itemCount: _carouselItems.length,
+                                        onPageChanged: (index) {
+                                          setState(() {
+                                            _currentCarouselIndex = index;
+                                          });
+                                        },
+                                        itemBuilder: (context, index) {
+                                          final item = _carouselItems[index];
+                                          return Container(
+                                            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                                            decoration: BoxDecoration(
+                                              color: colorScheme.inverseSurface, // Utiliser la couleur du thème
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(24.0),
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    item['title'],
+                                                    style: theme.textTheme.titleMedium?.copyWith(
+                                                      color: colorScheme.onInverseSurface, // Utiliser la couleur du thème
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  Text(
+                                                    item['description'],
+                                                    style: theme.textTheme.bodySmall?.copyWith(
+                                                      color: colorScheme.onInverseSurface.withOpacity(0.7), // Utiliser la couleur du thème
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    
+                                    // Indicateurs de carousel
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 24.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: _carouselItems.asMap().entries.map((entry) {
+                                          return Container(
+                                            width: 8.0,
+                                            height: 8.0,
+                                            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: _currentCarouselIndex == entry.key
+                                                  ? colorScheme.primary // Utiliser la couleur du thème
+                                                  : colorScheme.primary.withOpacity(0.3),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                    
+                                    // Texte descriptif
+                                    Text(
+                                      'Oroneo, votre IA personnelle gratuite pour gérer votre retraite, vos finances et préparer votre avenir sereinement.',
+                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                        color: colorScheme.onBackground, // Utiliser la couleur du thème
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    
+                                    const SizedBox(height: 60),
+                                    
+                                    // CTA principal
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 50,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _showLoginScreen = true;
+                                          });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: colorScheme.primary,
+                                          foregroundColor: colorScheme.onPrimary,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'CRÉER UN COMPTE MAINTENANT',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    
+                                    const SizedBox(height: 16),
+                                    
+                                    // Lien de connexion
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _showLoginScreen = true;
+                                        });
+                                      },
+                                      child: Text(
+                                        'J\'ai déjà un compte, je me connecte',
+                                        style: TextStyle(
+                                          color: colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    
+                                    const SizedBox(height: 40),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Home',
-                            style: TextStyle(
-                              color: _currentIndex == 0 
-                                  ? colorScheme.primary 
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _currentIndex = 1;
-                        });
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: _currentIndex == 1 
-                                ? colorScheme.primaryContainer 
-                                : colorScheme.surfaceVariant,
-                            radius: 20,
-                            child: Icon(
-                              Icons.message, // Utiliser l'icône message qui est plus fiable
-                              color: _currentIndex == 1 
-                                  ? colorScheme.onPrimaryContainer 
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Discuter',
-                            style: TextStyle(
-                              color: _currentIndex == 1 
-                                  ? colorScheme.primary 
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _currentIndex = 2;
-                        });
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: _currentIndex == 2 
-                                ? colorScheme.primaryContainer 
-                                : colorScheme.surfaceVariant,
-                            radius: 20,
-                            child: Icon(
-                              Icons.account_circle,
-                              color: _currentIndex == 2 
-                                  ? colorScheme.onPrimaryContainer 
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Mon profil',
-                            style: TextStyle(
-                              color: _currentIndex == 2 
-                                  ? colorScheme.primary 
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
               ),
               
               // Home indicator
@@ -194,445 +306,6 @@ class _MobilePreviewState extends State<MobilePreview> {
           ),
         ),
       ),
-    );
-  }
-  
-  Widget _buildScreen(int index) {
-    switch (index) {
-      case 0:
-        return _buildHomeScreen();
-      case 1:
-        return _buildChatScreen();
-      case 2:
-        return _buildProfileScreen();
-      default:
-        return _buildHomeScreen();
-    }
-  }
-  
-  Widget _buildHomeScreen() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    return Column(
-      children: [
-        // App Bar
-        Container(
-          height: 56,
-          color: colorScheme.surfaceVariant.withOpacity(0.3),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Icon(Icons.menu),
-              Text(
-                'Title',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const Icon(Icons.account_circle),
-            ],
-          ),
-        ),
-        
-        // Content
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              // Card avec header
-              Card(
-                margin: const EdgeInsets.only(bottom: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header avec avatar
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: colorScheme.primaryContainer,
-                            child: Text('A', style: TextStyle(color: colorScheme.onPrimaryContainer)),
-                          ),
-                          const SizedBox(width: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Header', style: Theme.of(context).textTheme.titleMedium),
-                              Text('Subhead', style: Theme.of(context).textTheme.bodyMedium),
-                            ],
-                          ),
-                          const Spacer(),
-                          const Icon(Icons.more_vert),
-                        ],
-                      ),
-                    ),
-                    // Media content
-                    Container(
-                      height: 200,
-                      color: Colors.grey.shade300,
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.change_history, size: 50, color: Colors.grey.shade500),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.crop_square, size: 40, color: Colors.grey.shade500),
-                                const SizedBox(width: 30),
-                                Icon(Icons.circle, size: 40, color: Colors.grey.shade500),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Card content
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Title', style: Theme.of(context).textTheme.titleMedium),
-                          Text('Subtitle', style: Theme.of(context).textTheme.bodyMedium),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              OutlinedButton(
-                                onPressed: () {},
-                                child: const Text('Enabled'),
-                              ),
-                              const SizedBox(width: 8),
-                              FilledButton(
-                                onPressed: () {},
-                                child: const Text('Enabled'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Section title
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  children: [
-                    Text('Section title', style: Theme.of(context).textTheme.titleLarge),
-                    const Spacer(),
-                    const Icon(Icons.arrow_right_alt),
-                  ],
-                ),
-              ),
-              
-              // List item
-              ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  color: Colors.grey.shade300,
-                  child: Icon(Icons.change_history, color: Colors.grey.shade500, size: 20),
-                ),
-                title: Text('Title', style: Theme.of(context).textTheme.titleMedium),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildChatScreen() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    return Column(
-      children: [
-        // App Bar
-        Container(
-          height: 56,
-          color: colorScheme.surfaceVariant.withOpacity(0.3),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Icon(Icons.arrow_back),
-              Text(
-                'Chat',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const Icon(Icons.more_vert),
-            ],
-          ),
-        ),
-        
-        // Chat content
-        Expanded(
-          child: Container(
-            color: colorScheme.background,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Message reçu
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 250),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Bonjour, comment ça va ?',
-                          style: TextStyle(color: colorScheme.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '09:15',
-                          style: TextStyle(
-                            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                
-                // Message envoyé
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 250),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Très bien, merci ! Et toi ?',
-                          style: TextStyle(color: colorScheme.onPrimary),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '09:17',
-                          style: TextStyle(
-                            color: colorScheme.onPrimary.withOpacity(0.7),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                
-                // Message reçu
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 250),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ça va bien aussi ! Tu as prévu quelque chose aujourd\'hui ?',
-                          style: TextStyle(color: colorScheme.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '09:20',
-                          style: TextStyle(
-                            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        
-        // Input field
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: colorScheme.surface,
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.attach_file),
-                onPressed: () {},
-              ),
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Message',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: colorScheme.surfaceVariant.withOpacity(0.5),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: () {},
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildProfileScreen() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    return Column(
-      children: [
-        // App Bar
-        Container(
-          height: 56,
-          color: colorScheme.surfaceVariant.withOpacity(0.3),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Icon(Icons.arrow_back),
-              Text(
-                'Profil',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const Icon(Icons.edit),
-            ],
-          ),
-        ),
-        
-        // Profile content
-        Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              // Header avec photo de profil
-              Container(
-                color: colorScheme.primaryContainer,
-                padding: const EdgeInsets.only(top: 32, bottom: 24),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: colorScheme.primary,
-                      child: Text(
-                        'JD',
-                        style: TextStyle(
-                          fontSize: 32,
-                          color: colorScheme.onPrimary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'John Doe',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'john.doe@example.com',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onPrimaryContainer.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Statistiques
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildStatColumn('Posts', '24'),
-                    _buildStatColumn('Followers', '482'),
-                    _buildStatColumn('Following', '128'),
-                  ],
-                ),
-              ),
-              
-              const Divider(),
-              
-              // Sections
-              ListTile(
-                leading: Icon(Icons.settings, color: colorScheme.primary),
-                title: const Text('Paramètres'),
-                trailing: const Icon(Icons.chevron_right),
-              ),
-              ListTile(
-                leading: Icon(Icons.privacy_tip, color: colorScheme.primary),
-                title: const Text('Confidentialité'),
-                trailing: const Icon(Icons.chevron_right),
-              ),
-              ListTile(
-                leading: Icon(Icons.help, color: colorScheme.primary),
-                title: const Text('Aide et support'),
-                trailing: const Icon(Icons.chevron_right),
-              ),
-              ListTile(
-                leading: Icon(Icons.logout, color: colorScheme.primary),
-                title: const Text('Déconnexion'),
-                trailing: const Icon(Icons.chevron_right),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildStatColumn(String title, String count) {
-    return Column(
-      children: [
-        Text(
-          count,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          title,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ],
     );
   }
 }
