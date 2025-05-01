@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../widgets/oroneo_logo.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../widgets/oroneo/oroneo_app_bar.dart';
+import '../../widgets/oroneo/oroneo_drawer.dart';
+import '../../widgets/oroneo_logo.dart';
+import 'oroneo_chat_screen.dart';
 
 class OroneoHomeScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final VoidCallback onChatNavigation;
   
-  OroneoHomeScreen({super.key});
+  OroneoHomeScreen({
+    super.key,
+    required this.onChatNavigation,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,57 +22,13 @@ class OroneoHomeScreen extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: colorScheme.background,
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: colorScheme.surface, // Ajout de la couleur de fond
-        leading: IconButton(
-          icon: _buildSvgIcon(
-            'menu',
-            color: colorScheme.onSurface, // Couleur adaptative pour l'icône
-          ),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-        title: const OroneoLogo(size: 20, useFullLogo: true),
-        actions: [
-          IconButton(
-            icon: _buildSvgIcon(
-              'notifications',
-              color: colorScheme.onSurface, // Couleur adaptative pour l'icône
-            ),
-            onPressed: () {},
-          ),
-        ],
+      appBar: OroneoAppBar(
+        onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            ListTile(
-              leading: _buildSvgIcon('chat_rounded'),
-              title: const Text('Messages'),
-            ),
-            ListTile(
-              leading: _buildSvgIcon('account_balance'),
-              title: const Text('PER'),
-            ),
-            ListTile(
-              leading: _buildSvgIcon('shield_rounded'),
-              title: const Text('Assurance vie'),
-            ),
-            const Divider(),
-            ListTile(
-              leading: _buildSvgIcon('history_rounded'),
-              title: const Text('Historique des conversations'),
-            ),
-            const Divider(),
-            ListTile(
-              leading: _buildSvgIcon('logout_rounded'),
-              title: const Text('Déconnexion'),
-              onTap: () {},
-            ),
-          ],
-        ),
+      drawer: OroneoDrawer(
+        onLogoutTap: () {
+          // Gérer la déconnexion
+        },
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -98,7 +61,7 @@ class OroneoHomeScreen extends StatelessWidget {
                       filled: true,
                       fillColor: colorScheme.surfaceVariant,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8), // Harmonisation avec les chips
+                        borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
                       suffixIcon: Row(
@@ -106,15 +69,17 @@ class OroneoHomeScreen extends StatelessWidget {
                         children: [
                           IconButton(
                             icon: _buildSvgIcon('mic'),
-                            onPressed: () {},
+                            onPressed: onChatNavigation,
                           ),
                           IconButton(
                             icon: _buildSvgIcon('send'),
-                            onPressed: () {},
+                            onPressed: onChatNavigation,
                           ),
                         ],
                       ),
                     ),
+                    onTap: onChatNavigation,
+                    readOnly: true,
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -189,11 +154,11 @@ class OroneoHomeScreen extends StatelessWidget {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: FloatingActionButton.extended(
-          onPressed: () {},
+          onPressed: onChatNavigation,
           label: const Text('Nouvelle conversation'),
           icon: _buildSvgIcon(
             'add',
-            color: colorScheme.onPrimaryContainer, // Utilisation de onPrimaryContainer
+            color: colorScheme.onPrimaryContainer,
           ),
         ),
       ),
@@ -224,7 +189,7 @@ class OroneoHomeScreen extends StatelessWidget {
         ),
         backgroundColor: colorScheme.surfaceVariant,
         side: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
-        onPressed: () {},
+        onPressed: () => _navigateToChat(context),
         labelPadding: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.symmetric(horizontal: 8),
       ),
@@ -269,5 +234,9 @@ class OroneoHomeScreen extends StatelessWidget {
       height: size,
       colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
     );
+  }
+
+  void _navigateToChat(BuildContext context) {
+    onChatNavigation();
   }
 }

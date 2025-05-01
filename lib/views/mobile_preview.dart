@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:m3builderai/views/screens/oroneo_login_screen.dart'; // Ajout de l'import
+import 'package:m3builderai/views/screens/oroneo_login_screen.dart';
 import 'package:m3builderai/views/screens/oroneo_home_screen.dart';
+import 'package:m3builderai/views/screens/oroneo_chat_screen.dart'; // Ajout de l'import manquant
 
 class MobilePreview extends StatefulWidget {
   const MobilePreview({super.key});
@@ -13,7 +14,8 @@ class MobilePreview extends StatefulWidget {
 class _MobilePreviewState extends State<MobilePreview> {
   int _currentCarouselIndex = 0;
   bool _showLoginScreen = false;
-  bool _showHomeScreen = false;  // Nouvel état pour l'écran d'accueil
+  bool _showHomeScreen = false;
+  bool _showChatScreen = false;  // Nouvel état pour l'écran de chat
   
   final List<Map<String, dynamic>> _carouselItems = [
     {
@@ -114,8 +116,24 @@ class _MobilePreviewState extends State<MobilePreview> {
                         },
                       )
                     : _showHomeScreen 
-                        ? OroneoHomeScreen()  // Suppression du mot-clé 'const'
-                        : Scaffold(
+                        ? OroneoHomeScreen(
+                            onChatNavigation: () {
+                              setState(() {
+                                _showHomeScreen = false;
+                                _showChatScreen = true;
+                              });
+                            },
+                          )
+                        : _showChatScreen
+                            ? OroneoChatScreen(
+                                onBackPressed: () {
+                                  setState(() {
+                                    _showChatScreen = false;
+                                    _showHomeScreen = true;
+                                  });
+                                },
+                              )
+                            : Scaffold(
                         backgroundColor: colorScheme.background,
                         body: SafeArea(
                           child: Center(
