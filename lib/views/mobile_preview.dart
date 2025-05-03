@@ -5,6 +5,7 @@ import 'package:m3builderai/views/screens/oroneo_home_screen.dart';
 import 'package:m3builderai/views/screens/oroneo_chat_screen.dart';
 import 'package:m3builderai/views/screens/oroneo_simulation_screen.dart'; // Nouvel import
 import 'package:m3builderai/views/screens/oroneo_fs_dialog_simulation.dart';
+import 'package:m3builderai/views/screens/oroneo_simulation_dashboard.dart';
 
 class MobilePreview extends StatefulWidget {
   const MobilePreview({super.key});
@@ -20,7 +21,8 @@ class _MobilePreviewState extends State<MobilePreview> {
   bool _showChatScreen = false;
   bool _showSimulationScreen = false;  // Nouvel état pour l'écran de simulation
   bool _showSimulationDialog = false;  // Nouvel état pour la boîte de dialogue
-  
+  bool _showSimulationDashboard = false;  // Nouvel état
+
   final List<Map<String, dynamic>> _carouselItems = [
     {
       'title': 'Votre assistant personnel IA finance',
@@ -166,8 +168,23 @@ class _MobilePreviewState extends State<MobilePreview> {
                                             _showSimulationScreen = true;
                                           });
                                         },
+                                        onViewSimulation: () {
+                                          setState(() {
+                                            _showSimulationDialog = false;
+                                            _showSimulationDashboard = true;
+                                          });
+                                        },
                                       )
-                                    : Scaffold(
+                                    : _showSimulationDashboard
+                                        ? OroneoSimulationDashboard(
+                                            onBackPressed: () {
+                                              setState(() {
+                                                _showSimulationDashboard = false;
+                                                _showHomeScreen = true;
+                                              });
+                                            },
+                                          )
+                                        : Scaffold(
                         backgroundColor: colorScheme.background,
                         body: SafeArea(
                           child: Center(

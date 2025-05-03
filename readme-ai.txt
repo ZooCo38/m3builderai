@@ -1,113 +1,96 @@
 # M3 Builder AI - Documentation Complète
 
 ## Vue d'ensemble
-M3 Builder AI est une application Flutter qui permet de créer, visualiser et éditer des thèmes Material 3. L'application offre une interface intuitive pour personnaliser les couleurs du thème et visualiser en temps réel l'impact sur différents composants Material 3. Elle inclut désormais un thème personnalisé Oroneo avec support pour les assets SVG.
+M3 Builder AI est une application Flutter qui permet de créer, visualiser et éditer des thèmes Material 3, ainsi que de simuler des scénarios de retraite. L'application offre une interface intuitive pour personnaliser les couleurs du thème et visualiser en temps réel l'impact sur différents composants Material 3. Elle inclut un thème personnalisé Oroneo avec support pour les assets SVG et un module complet de simulation retraite.
 
 ## Structure du projet
 Le projet suit une architecture organisée avec les dossiers principaux suivants :
 - lib/ : Contient tout le code source Dart
   - components/ : Widgets réutilisables
-    - drawer/ : Composants pour les tiroirs latéraux (dont theme_editor_drawer.dart)
-    - preview/ : Composants pour l'aperçu des thèmes
   - models/ : Modèles de données
-    - theme_model.dart : Définition du modèle de thème
   - theme/ : Logique de gestion des thèmes
-    - material_theme.dart : Implémentation du thème Material 3
-    - theme_controller.dart : Gère l'état du thème dans l'application
-    - theme_export.dart : Fonctionnalités d'exportation de thèmes
-    - theme_import.dart : Fonctionnalités d'importation de thèmes
-    - oroneo_theme.dart : Définition du thème personnalisé Oroneo
   - utils/ : Utilitaires et helpers
-    - file_picker_adapter.dart : Adaptation pour la sélection de fichiers
-    - file_picker_web.dart : Implémentation spécifique pour le web
-    - platform_helper.dart : Fonctions spécifiques aux plateformes
   - views/ : Écrans de l'application
-    - components_view.dart : Vue des composants Material 3
-    - home_view.dart : Écran principal
+    - screens/ : Écrans principaux
+      - oroneo_home_screen.dart : Écran d'accueil Oroneo
+      - oroneo_fs_dialog_simulation.dart : Dialog de simulation retraite
+      - oroneo_simulation_dashboard.dart : Tableau de bord de simulation
     - mobile_preview.dart : Aperçu pour mobile
-    - web_preview.dart : Aperçu pour web avec maquette Oroneo
   - widgets/ : Widgets personnalisés
-    - hex_color_field.dart : Champ pour éditer les couleurs hexadécimales
+    - oroneo/ : Widgets spécifiques à Oroneo
   - main.dart : Point d'entrée de l'application
-- assets/ : Ressources statiques
-  - oroneo/ : Assets pour le thème Oroneo
-    - logos/ : Logos SVG pour Oroneo (Logodark.svg, Logolight.svg, etc.)
-    - carousel/ : Images pour le carousel
-    - icons/ : Icônes personnalisées
 
 ## Fonctionnalités principales
 
-### 1. Éditeur de thème
-- Modification des couleurs primaires, secondaires, tertiaires, d'erreur, etc.
+### 1. Simulateur de retraite
+- Interface conversationnelle pour la collecte des données
+- Analyse des documents (relevé de carrière)
+- Calcul personnalisé des droits à la retraite
+- Tableau de bord interactif avec :
+  - Profil utilisateur expansible
+  - Situation actuelle (âge de départ, pension, taux de remplacement)
+  - Simulateur avec variables ajustables
+  - Visualisation des impacts en temps réel
+
+### 2. Éditeur de thème
+- Modification des couleurs primaires, secondaires, tertiaires
 - Visualisation en temps réel des changements
-- Édition directe des codes hexadécimaux des couleurs via hex_color_field.dart
 - Support des thèmes clairs et sombres
 - Thème personnalisé Oroneo préconfiguré
 
-### 2. Importation/Exportation de thèmes
-- Importation de thèmes depuis différents formats (JSON, Dart, XML, CSS)
-- Exportation de thèmes vers différents formats
-- Sauvegarde locale des thèmes
-- Adaptation pour le web via file_picker_web.dart
-
 ### 3. Vues multiples
-- Vue des composants (components_view.dart)
-- Aperçu mobile (mobile_preview.dart)
-- Aperçu web (web_preview.dart) avec maquette Oroneo intégrée
-- Vue d'accueil (home_view.dart)
+- Vue simulation retraite
+- Vue tableau de bord
+- Aperçu mobile
+- Navigation fluide entre les écrans
 
 ### 4. Support SVG
 - Intégration de logos et icônes SVG
-- Gestion des assets avec fallback en cas d'erreur
-- Vérification dynamique de la disponibilité des assets
+- Gestion des assets avec fallback
+- Icônes personnalisées pour l'interface
 
 ## Flux de travail typique
-1. L'utilisateur ouvre l'application et voit les composants Material 3 avec le thème par défaut ou Oroneo
-2. L'utilisateur peut ouvrir le tiroir d'édition de thème pour modifier les couleurs
-3. Les modifications sont appliquées en temps réel sur les composants
-4. L'utilisateur peut basculer entre différentes vues pour voir l'impact du thème
-5. L'utilisateur peut visualiser la maquette Oroneo dans la vue web
-6. L'utilisateur peut importer un thème existant ou exporter le thème créé
+1. L'utilisateur accède à la simulation retraite
+2. Discussion interactive pour la collecte d'informations
+3. Upload et analyse du relevé de carrière
+4. Génération de la simulation personnalisée
+5. Accès au tableau de bord interactif
+6. Possibilité de modifier les variables et voir l'impact
 
 ## Détails techniques
 
 ### Gestion d'état
-- Utilisation de Provider pour la gestion d'état du thème
-- ThemeController centralise la logique de gestion des thèmes
+- StatefulWidget pour les écrans interactifs
+- Gestion locale des états de simulation
+- Variables réactives pour les calculs en temps réel
 
-### Compatibilité multi-plateformes
-- Support pour Web, Android, iOS, et desktop
-- Adaptations spécifiques pour le web dans file_picker_web.dart et platform_helper.dart
+### Design System
+- Utilisation cohérente de Material 3
+- Composants personnalisés respectant les guidelines
+- Thème Oroneo intégré
+- Gestion des contrastes et de l'accessibilité
 
-### Intégration SVG
-- Utilisation de flutter_svg pour le rendu des SVG
-- Vérification des assets via AssetManifest.json
-- Placeholders configurés en cas d'échec de chargement
-
-### Déploiement
-- Version web déployée sur GitHub Pages : https://zooco38.github.io/m3builderai/
-- Base href configurée pour le chemin /m3builderai/
-- Branche feature/oroneo-theme pour les développements spécifiques à Oroneo
+### Composants principaux
+- Cards expansibles
+- Sliders interactifs
+- Switches pour options
+- Chips informatifs
+- Boutons d'action contextuels
 
 ## Dépendances principales
 - flutter/material.dart : Framework UI de base
-- provider : Gestion d'état
-- file_picker : Sélection de fichiers pour import/export
 - flutter_svg : Support pour les fichiers SVG
-- google_fonts : Intégration de polices web (Montserrat)
+- google_fonts : Intégration de polices web
 
 ## Développement futur
-- Intégration avec l'API Material Theme Builder de Google
-- Génération de thèmes à l'aide d'IA
-- Support pour l'accessibilité et les contrastes
-- Sauvegarde des thèmes dans le cloud
-- Amélioration de la maquette Oroneo avec plus de sections
-- Optimisation des performances de rendu SVG
+- Intégration avec des APIs de calcul retraite
+- Export des simulations en PDF
+- Sauvegarde des scénarios
+- Mode hors ligne
+- Support multi-langues
 
 ## Notes pour les développeurs
-- Les modifications de couleur sont gérées via ThemeController
-- L'exportation de thèmes supporte plusieurs formats via ThemeExporter
-- L'application utilise Material 3 (Material You) pour tous les composants
-- Le modèle de thème est défini dans theme_model.dart
-- Les assets SVG doivent être déclarés dans pubspec.yaml et placés dans le dossier assets/
-- La branche feature/oroneo-theme contient les dernières modifications pour le thème Oroneo
+- Respecter la structure des widgets existants
+- Utiliser les composants Material 3
+- Suivre les conventions de nommage établies
+- Maintenir la cohérence du design system
