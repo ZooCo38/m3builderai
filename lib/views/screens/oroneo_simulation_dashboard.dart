@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../widgets/oroneo/oroneo_app_bar.dart';
 
 class OroneoSimulationDashboard extends StatefulWidget {
@@ -258,6 +259,125 @@ class _OroneoSimulationDashboardState extends State<OroneoSimulationDashboard> {
     );
   }
 
+  Widget _buildPensionChart(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Évolution de votre pension',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 300,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: 3500,
+                  barGroups: [
+                    BarChartGroupData(
+                      x: 0,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 2450,
+                          color: colorScheme.primary,
+                          width: 20,
+                          borderRadius: BorderRadius.circular(4),
+                          backDrawRodData: BackgroundBarChartRodData(
+                            show: true,
+                            toY: 3500,
+                            color: colorScheme.surfaceVariant,
+                          ),
+                        ),
+                      ],
+                      showingTooltipIndicators: [0],
+                    ),
+                    BarChartGroupData(
+                      x: 1,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 2650,
+                          color: colorScheme.primary,
+                          width: 20,
+                          borderRadius: BorderRadius.circular(4),
+                          backDrawRodData: BackgroundBarChartRodData(
+                            show: true,
+                            toY: 3500,
+                            color: colorScheme.surfaceVariant,
+                          ),
+                        ),
+                      ],
+                      showingTooltipIndicators: [0],
+                    ),
+                  ],
+                  barTouchData: BarTouchData(
+                    enabled: true,
+                    touchTooltipData: BarTouchTooltipData(
+                      tooltipBgColor: colorScheme.secondaryContainer,
+                      tooltipRoundedRadius: 8,
+                      tooltipPadding: const EdgeInsets.all(8),
+                      tooltipMargin: 8,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        return BarTooltipItem(
+                          '${rod.toY.round()}€',
+                          TextStyle(
+                            color: colorScheme.onSecondaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '${value.toInt()}€',
+                            style: theme.textTheme.bodySmall,
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '${(value + 64).toInt()} ans',
+                            style: theme.textTheme.bodySmall,
+                          );
+                        },
+                      ),
+                    ),
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                  gridData: FlGridData(show: false),
+                  borderData: FlBorderData(show: false),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildResultCard(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -391,6 +511,8 @@ class _OroneoSimulationDashboardState extends State<OroneoSimulationDashboard> {
           _buildCurrentSituationCard(context),
           const SizedBox(height: 16),
           _buildSimulatorCard(context),
+          const SizedBox(height: 16),
+          _buildPensionChart(context),  // Ajout de l'histogramme ici
           const SizedBox(height: 16),
           _buildResultCard(context),
           const SizedBox(height: 32),
