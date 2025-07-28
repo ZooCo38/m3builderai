@@ -3,9 +3,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:m3builderai/views/screens/oroneo_login_screen.dart';
 import 'package:m3builderai/views/screens/oroneo_home_screen.dart';
 import 'package:m3builderai/views/screens/oroneo_chat_screen.dart';
-import 'package:m3builderai/views/screens/oroneo_simulation_screen.dart'; // Nouvel import
+import 'package:m3builderai/views/screens/oroneo_simulation_screen.dart';
 import 'package:m3builderai/views/screens/oroneo_fs_dialog_simulation.dart';
 import 'package:m3builderai/views/screens/oroneo_simulation_dashboard.dart';
+import 'package:m3builderai/views/screens/oroneo_subscription.dart';
+import 'package:m3builderai/views/screens/oroneo_subscription_chat.dart';
 
 class MobilePreview extends StatefulWidget {
   const MobilePreview({super.key});
@@ -19,9 +21,11 @@ class _MobilePreviewState extends State<MobilePreview> {
   bool _showLoginScreen = false;
   bool _showHomeScreen = false;
   bool _showChatScreen = false;
-  bool _showSimulationScreen = false;  // Nouvel état pour l'écran de simulation
-  bool _showSimulationDialog = false;  // Nouvel état pour la boîte de dialogue
-  bool _showSimulationDashboard = false;  // Nouvel état
+  bool _showSimulationScreen = false;
+  bool _showSimulationDialog = false;
+  bool _showSimulationDashboard = false;
+  bool _showSubscriptionScreen = false;
+  bool _showSubscriptionChat = false;
 
   final List<Map<String, dynamic>> _carouselItems = [
     {
@@ -183,8 +187,38 @@ class _MobilePreviewState extends State<MobilePreview> {
                                                 _showHomeScreen = true;
                                               });
                                             },
+                                            onSubscriptionNavigation: () {
+                                              setState(() {
+                                                _showSimulationDashboard = false;
+                                                _showSubscriptionScreen = true;
+                                              });
+                                            },
                                           )
-                                        : Scaffold(
+                                        : _showSubscriptionScreen
+                                            ? OroneoSubscription(
+                                                onBackPressed: () {
+                                                  setState(() {
+                                                    _showSubscriptionScreen = false;
+                                                    _showSimulationDashboard = true;
+                                                  });
+                                                },
+                                                onChatNavigation: () {
+                                                  setState(() {
+                                                    _showSubscriptionScreen = false;
+                                                    _showSubscriptionChat = true;
+                                                  });
+                                                },
+                                              )
+                                            : _showSubscriptionChat
+                                                ? OroneoSubscriptionChat(
+                                                    onBackPressed: () {
+                                                      setState(() {
+                                                        _showSubscriptionChat = false;
+                                                        _showSubscriptionScreen = true;
+                                                      });
+                                                    },
+                                                  )
+                                                : Scaffold(
                         backgroundColor: colorScheme.background,
                         body: SafeArea(
                           child: Center(

@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../widgets/oroneo/oroneo_app_bar.dart';
+import 'oroneo_subscription.dart';
 
 class OroneoSimulationDashboard extends StatefulWidget {
   final VoidCallback onBackPressed;
+  final VoidCallback onSubscriptionNavigation;
 
   const OroneoSimulationDashboard({
     super.key,
     required this.onBackPressed,
+    required this.onSubscriptionNavigation,
   });
 
   @override
@@ -472,9 +475,7 @@ class _OroneoSimulationDashboardState extends State<OroneoSimulationDashboard> {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () {
-                  // Action pour mettre en place le plan
-                },
+                onPressed: widget.onSubscriptionNavigation,
                 child: const Text('Je veux mettre en place ce plan !'),
               ),
             ),
